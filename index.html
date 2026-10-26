@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Office Dashboard · BillionToOne</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --card:#ffffff; --soft:#eef4fb; --border:#dce6f1;
+    --text:#273445; --dim:#6a7789; --accent:#1cace9; --navy:#303b4a;
+    --shadow:0 10px 30px rgba(39,52,69,.08); --bar-h:66px;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%; margin:0; overflow:hidden;}
+  body{
+    font-family:'Inter',system-ui,sans-serif; color:var(--text); -webkit-font-smoothing:antialiased;
+    height:100vh; display:flex; flex-direction:column;
+    background:radial-gradient(1200px 500px at 70% -10%, #d7f0fb, transparent 60%), linear-gradient(180deg,#eef5fb,#e6eef7);
+  }
+
+  /* top bar */
+  .bar{height:var(--bar-h); flex:0 0 auto; display:flex; align-items:center; justify-content:space-between; gap:14px; padding:0 26px;
+    background:var(--card); border-top:4px solid var(--accent); border-bottom:1px solid var(--border); box-shadow:var(--shadow); z-index:6;}
+  .bar-left{display:flex; align-items:center; gap:20px;}
+  .bto-logo{height:27px; width:auto; display:block;}
+  .loc{font-family:'Space Grotesk'; font-weight:600; font-size:18px; display:flex; align-items:center; gap:9px;}
+  .loc .live{width:9px; height:9px; border-radius:50%; background:#2ecc71; animation:pulse 2.4s infinite;}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(46,204,113,.5)}70%{box-shadow:0 0 0 8px rgba(46,204,113,0)}100%{box-shadow:0 0 0 0 rgba(46,204,113,0)}}
+  .bar-right{display:flex; align-items:center; gap:20px;}
+  .clock{text-align:right; line-height:1.1;}
+  .clock .t{font-family:'Space Grotesk'; font-weight:700; font-size:23px; font-variant-numeric:tabular-nums;}
+  .clock .u{font-size:11px; color:var(--dim); margin-top:2px;}
+  .iconbtn{background:var(--soft); border:1px solid var(--border); color:var(--text); width:40px; height:40px; border-radius:11px; cursor:pointer; font-size:17px; display:grid; place-items:center;}
+  .iconbtn:hover{box-shadow:0 0 14px rgba(28,172,233,.3);}
+
+  /* split layout */
+  .layout{flex:1 1 auto; min-height:0; display:flex;}
+  .hours-col{flex:0 0 234px; background:var(--card); border-right:1px solid var(--border); overflow-y:auto; padding:16px 14px;}
+  .rail-title{font-family:'Space Grotesk'; font-weight:600; font-size:12px; letter-spacing:.09em; text-transform:uppercase; color:var(--dim); margin:2px 0 12px 2px;}
+  .map-col{flex:1; position:relative; min-width:0;}
+  .map-col iframe{position:absolute; inset:0; width:100%; height:100%; border:0;}
+  .map-mask{position:absolute; top:0; left:0; right:0; height:110px; background:var(--card); border-bottom:1px solid var(--border); z-index:2;
+    display:flex; align-items:center; justify-content:space-between; gap:18px; padding:0 24px;}
+  .mw{display:flex; align-items:center; gap:20px; min-width:0;}
+  .mw-icon{font-size:52px; line-height:1;}
+  .mw-temp{font-family:'Space Grotesk'; font-weight:700; font-size:50px; line-height:1;}
+  .mw-temp sup{font-size:19px; vertical-align:top; color:var(--dim);}
+  .mw-info{display:flex; flex-direction:column; gap:5px; min-width:0;}
+  .mw-cond{font-family:'Space Grotesk'; font-weight:600; font-size:20px;}
+  .mw-chips{font-size:14px; color:var(--dim); white-space:normal; line-height:1.45;}
+  .mw-chips b{color:var(--text); font-weight:600;}
+  .map-credit{display:flex; align-items:center; gap:7px; font-size:12px; color:var(--dim); white-space:nowrap; align-self:flex-start; margin-top:12px;}
+  .map-credit i{width:8px; height:8px; border-radius:50%; background:#e74c3c; animation:pulse 2s infinite;}
+
+  .map-foot{position:absolute; left:0; right:0; bottom:0; height:106px; background:var(--card); border-top:1px solid var(--border); z-index:2; display:flex; gap:8px; padding:9px 12px;}
+
+  .card{background:var(--card); border:1px solid var(--border); border-radius:18px; box-shadow:var(--shadow);}
+  .sec-title{font-family:'Space Grotesk'; font-weight:600; font-size:12px; letter-spacing:.09em; text-transform:uppercase; color:var(--dim); margin:2px 0 8px 4px;}
+
+  /* current */
+  .current{padding:18px 20px;}
+  .cur-top{display:flex; align-items:center; gap:16px;}
+  .cur-icon{font-size:58px; line-height:1;}
+  .cur-temp{font-family:'Space Grotesk'; font-weight:700; font-size:58px; line-height:.95;}
+  .cur-temp sup{font-size:24px; vertical-align:top; color:var(--dim);}
+  .cur-meta .cond{font-family:'Space Grotesk'; font-weight:600; font-size:18px;}
+  .cur-meta .feels{color:var(--dim); font-size:13px; margin-top:2px;}
+  .cur-stats{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:16px;}
+  .stat{background:var(--soft); border:1px solid var(--border); border-radius:11px; padding:9px 11px;}
+  .stat .lbl{font-size:10.5px; color:var(--dim); text-transform:uppercase; letter-spacing:.05em;}
+  .stat .val{font-family:'Space Grotesk'; font-weight:600; font-size:16px; margin-top:2px;}
+
+  /* hourly */
+  .hours{display:flex; flex-direction:column; gap:8px;}
+  .hour{display:flex; align-items:center; gap:10px; background:var(--soft); border:1px solid var(--border); border-radius:11px; padding:9px 12px;}
+  .hour .h{font-size:13px; color:var(--dim); font-weight:600; width:42px;}
+  .hour .i{font-size:22px; width:28px; text-align:center;}
+  .hour .tp{font-family:'Space Grotesk'; font-weight:700; font-size:18px; margin-left:auto;}
+  .hour .pp{font-size:12px; color:var(--accent); font-weight:600; width:48px; text-align:right;}
+
+  /* daily list */
+  .day{flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; background:var(--soft); border:1px solid var(--border); border-radius:10px; padding:6px 4px;}
+  .day .d{font-family:'Space Grotesk'; font-weight:600; font-size:13px;}
+  .day .i{font-size:26px; line-height:1;}
+  .day .pp{font-size:11px; color:var(--accent); font-weight:600; min-height:13px;}
+  .day .hl{font-family:'Space Grotesk'; font-weight:600; font-size:14px;}
+  .day .hl .lo{color:var(--dim);}
+
+  .loading,.err{padding:26px; text-align:center; color:var(--dim); font-size:14px;}
+  .err{color:#c0392b;}
+
+  @media (max-width:900px){
+    html,body{overflow:auto;}
+    .layout{flex-direction:column;}
+    .hours-col{flex:0 0 auto; border-right:none; border-bottom:1px solid var(--border);}
+    .hours{flex-direction:row; flex-wrap:wrap;}
+    .hour{flex:1 1 90px;}
+    .map-col{height:62vh; min-height:400px;}
+  }
+</style>
+</head>
+<body>
+  <div class="bar">
+    <div class="bar-left">
+      <svg class="bto-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 987.5 129.17" role="img" aria-label="BillionToOne"><defs><style>.d{fill:#fff;}.e{fill:#cbced5;}.f{fill:#303b4a;}.g{fill:#1cace9;}</style></defs><g><g><g><g><g><path class="f" d="M0,17.14H29.36c15.46,0,21.84,1.28,26.94,5.25,5.53,4.25,9.08,11.91,9.08,19.71s-3.97,14.89-11.06,19c10.35,3.4,15.74,11.06,15.74,22.12,0,8.08-3.12,15.46-8.79,20.71-6.95,6.52-13.47,8.23-31.06,8.23H0V17.14ZM31.91,53.16c6.95,0,10.21-2.27,10.21-7.52,0-2.55-1.28-4.82-3.26-5.96-1.7-.99-2.84-1.13-6.95-1.13h-8.65v14.61h8.65Zm2.84,37.58c7.8,0,12.05-3.12,12.05-9.08,0-2.55-1.28-5.11-3.26-6.52-1.99-1.28-3.97-1.7-8.79-1.7h-11.49v17.3h11.49Z"/><path class="f" d="M83.95,17.14h24.25V112.15h-24.25V17.14Z"/><path class="f" d="M126.5,17.14h24.25V90.74h28.08v21.41h-52.33V17.14Z"/><path class="f" d="M188.9,17.14h24.25V90.74h28.08v21.41h-52.33V17.14Z"/><path class="f" d="M251.3,17.14h24.25V112.15h-24.25V17.14Z"/><path class="f" d="M338.94,15.15c28.22,0,50.34,21.7,50.34,49.49s-22.12,49.35-50.2,49.35-50.2-21.41-50.2-50.06,22.12-48.78,50.06-48.78Zm.57,77.43c14.32,0,25.53-12.2,25.53-27.8s-11.35-28.22-25.95-28.22-25.95,12.05-25.95,27.51c0,16.31,11.2,28.5,26.38,28.5Z"/><path class="f" d="M402.48,17.14h20.85l37.16,59.7-.99-59.7h23.26V112.15h-21.13l-36.73-57.86,.85,57.86h-23.26V17.14Z"/></g><g><path class="e" d="M519.57,38.57h-18.86V17.16h61.83v21.41h-18.72V112.17h-24.25V38.57Z"/><path class="e" d="M615.73,15.17c28.22,0,50.34,21.7,50.34,49.49s-22.12,49.35-50.2,49.35-50.2-21.41-50.2-50.06,22.12-48.78,50.06-48.78Zm.57,77.43c14.32,0,25.53-12.2,25.53-27.8s-11.35-28.22-25.95-28.22-25.95,12.05-25.95,27.51c0,16.31,11.2,28.5,26.38,28.5Z"/></g></g><rect class="g" x="689.11" y="0" width="298.39" height="129.17"/><g><path class="d" d="M754.73,20.83c24.99,0,44.58,19.21,44.58,43.82s-19.59,43.7-44.45,43.7-44.45-18.96-44.45-44.32,19.59-43.19,44.32-43.19Zm.5,68.56c12.68,0,22.6-10.8,22.6-24.61s-10.04-24.99-22.98-24.99-22.98,10.67-22.98,24.36c0,14.44,9.92,25.24,23.35,25.24Z"/><path class="d" d="M820.41,22.58h18.46l32.9,52.86-.88-52.86h20.59V106.71h-18.71l-32.52-51.23,.75,51.23h-20.59V22.58Z"/><path class="d" d="M915.21,22.58h46.84v18.96h-26.24v12.93h25.36v18.96h-25.36v14.31h26.24v18.96h-46.84V22.58Z"/></g></g></g></g></svg>
+      <span class="loc"><span class="live"></span><span id="locName">Union City, CA</span></span>
+    </div>
+    <div class="bar-right">
+      <div class="clock"><div class="t" id="clock">--:--</div><div class="u" id="updated">updating…</div></div>
+      <button class="iconbtn" id="fsBtn" title="Toggle full screen">⛶</button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <div class="hours-col">
+      <p class="rail-title">Next 12 hours</p>
+      <div class="hours" id="hours"><div class="loading">Loading…</div></div>
+    </div>
+
+    <div class="map-col">
+      <iframe id="map" allowfullscreen referrerpolicy="no-referrer-when-downgrade" title="Live traffic around BillionToOne offices"></iframe>
+      <div class="map-mask">
+        <div class="mw" id="mapWeather"><span class="mw-chips">Loading weather…</span></div>
+        <div class="map-credit"><i></i> Live traffic · via Waze</div>
+      </div>
+      <div class="map-foot" id="days"><div class="loading">Loading…</div></div>
+    </div>
+  </div>
+
+<script>
+  var MAP = { lat: 37.535773, lon: -122.127616, zoom: 11 };            // regional traffic view
+  var LOCATION = { name: "Union City, CA", lat: 37.5934, lon: -122.0438 }; // weather location
+
+  function wazeSrc(){ return "https://embed.waze.com/iframe?zoom="+MAP.zoom+"&lat="+MAP.lat+"&lon="+MAP.lon+"&ct=livemap"; }
+
+  var API = "https://api.open-meteo.com/v1/forecast?latitude="+LOCATION.lat+"&longitude="+LOCATION.lon+
+    "&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,weather_code,wind_speed_10m"+
+    "&hourly=temperature_2m,precipitation_probability,weather_code"+
+    "&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunrise,sunset"+
+    "&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&timezone=auto&forecast_days=7";
+
+  function wx(code){
+    var m={0:["☀️","Clear sky"],1:["🌤️","Mainly clear"],2:["⛅","Partly cloudy"],3:["☁️","Overcast"],
+      45:["🌫️","Fog"],48:["🌫️","Rime fog"],51:["🌦️","Light drizzle"],53:["🌦️","Drizzle"],55:["🌦️","Heavy drizzle"],
+      56:["🌧️","Freezing drizzle"],57:["🌧️","Freezing drizzle"],61:["🌧️","Light rain"],63:["🌧️","Rain"],65:["🌧️","Heavy rain"],
+      66:["🌧️","Freezing rain"],67:["🌧️","Freezing rain"],71:["🌨️","Light snow"],73:["🌨️","Snow"],75:["🌨️","Heavy snow"],
+      77:["🌨️","Snow grains"],80:["🌦️","Rain showers"],81:["🌦️","Rain showers"],82:["⛈️","Heavy showers"],
+      85:["🌨️","Snow showers"],86:["🌨️","Snow showers"],95:["⛈️","Thunderstorm"],96:["⛈️","Thunderstorm, hail"],99:["⛈️","Thunderstorm, hail"]};
+    return m[code]||["🌡️","—"];
+  }
+  function r(n){ return Math.round(n); }
+  function two(n){ return (n<10?"0":"")+n; }
+  function hhmm(d){ var h=d.getHours(),m=d.getMinutes(),ap=h>=12?"PM":"AM"; h=h%12; if(h===0)h=12; return h+":"+two(m)+" "+ap; }
+  function hourLabel(d,i){ if(i===0) return "Now"; var h=d.getHours(),ap=h>=12?"P":"A"; h=h%12; if(h===0)h=12; return h+ap; }
+  function dayLabel(d,i){ if(i===0) return "Today"; return ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][d.getDay()]; }
+  function stat(lbl,val){ return '<div class="stat"><div class="lbl">'+lbl+'</div><div class="val">'+val+'</div></div>'; }
+
+  function render(data){
+    var c=data.current, d=data.daily, cw=wx(c.weather_code);
+    var pp0=(d.precipitation_probability_max[0]!=null?d.precipitation_probability_max[0]:0);
+    document.getElementById("mapWeather").innerHTML=
+      '<span class="mw-icon">'+cw[0]+'</span>'+
+      '<span class="mw-temp">'+r(c.temperature_2m)+'<sup>°F</sup></span>'+
+      '<div class="mw-info"><span class="mw-cond">'+cw[1]+'</span>'+
+        '<span class="mw-chips">Feels '+r(c.apparent_temperature)+'° &nbsp;·&nbsp; 💧 '+c.relative_humidity_2m+'% &nbsp;·&nbsp; 💨 '+r(c.wind_speed_10m)+' mph &nbsp;·&nbsp; ☔ '+pp0+'% &nbsp;·&nbsp; <b>⬆ '+r(d.temperature_2m_max[0])+'° &nbsp;⬇ '+r(d.temperature_2m_min[0])+'°</b></span></div>';
+
+    var h=data.hourly, now=Date.now(), start=0;
+    for(var i=0;i<h.time.length;i++){ if(new Date(h.time[i]).getTime() >= now-3600000){ start=i; break; } }
+    var html="";
+    for(var j=start;j<start+12 && j<h.time.length;j++){
+      var dt=new Date(h.time[j]), w=wx(h.weather_code[j]), pp=h.precipitation_probability[j];
+      html+='<div class="hour"><div class="h">'+hourLabel(dt,j-start)+'</div><div class="i">'+w[0]+'</div>'+
+        '<div class="tp">'+r(h.temperature_2m[j])+'°</div><div class="pp">'+(pp>0?('💧'+pp+'%'):'')+'</div></div>';
+    }
+    document.getElementById("hours").innerHTML=html;
+
+    var dhtml="";
+    for(var k=0;k<d.time.length;k++){
+      var dd=new Date(d.time[k]+"T12:00:00"), w2=wx(d.weather_code[k]), pp2=d.precipitation_probability_max[k];
+      dhtml+='<div class="day"><div class="d">'+dayLabel(dd,k)+'</div><div class="i">'+w2[0]+'</div>'+
+        '<div class="pp">'+(pp2>0?('💧'+pp2+'%'):'')+'</div>'+
+        '<div class="hl">'+r(d.temperature_2m_max[k])+'° <span class="lo">'+r(d.temperature_2m_min[k])+'°</span></div></div>';
+    }
+    document.getElementById("days").innerHTML=dhtml;
+
+    document.getElementById("updated").textContent="updated "+hhmm(new Date());
+  }
+
+  function fetchWeather(){
+    fetch(API).then(function(res){ if(!res.ok) throw new Error(res.status); return res.json(); })
+      .then(render)
+      .catch(function(e){ document.getElementById("current").innerHTML='<div class="err">Could not load weather ('+e.message+'). Retrying…</div>'; });
+  }
+  function refreshMap(){ document.getElementById("map").src=wazeSrc(); }
+  function tickClock(){ document.getElementById("clock").textContent=hhmm(new Date()); }
+
+  document.getElementById("fsBtn").addEventListener("click",function(){
+    if(document.fullscreenElement) document.exitFullscreen();
+    else if(document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
+  });
+
+  refreshMap();
+  fetchWeather();
+  tickClock(); setInterval(tickClock,1000);
+  setInterval(fetchWeather, 10*60*1000);   // weather every 10 min
+  setInterval(refreshMap, 5*60*1000);      // traffic every 5 min
+</script>
+</body>
+</html>
