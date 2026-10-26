@@ -33,6 +33,7 @@
   .layout{flex:1 1 auto; min-height:0; display:flex; padding:14px; gap:14px;}
 
   .hours-col{flex:0 0 296px; background:var(--card); border:1px solid var(--border); border-radius:18px; box-shadow:var(--shadow); display:flex; flex-direction:column; overflow:hidden; padding:14px;}
+  .rail-title.first{margin:2px 0 10px 2px;}
   .rail-title{font-family:'Space Grotesk'; font-weight:600; font-size:12px; letter-spacing:.09em; text-transform:uppercase; color:var(--dim); margin:16px 0 10px 2px; flex:0 0 auto;}
 
   .map-col{flex:1; position:relative; min-width:0; border:1px solid var(--border); border-radius:18px; overflow:hidden; box-shadow:var(--shadow);}
@@ -54,7 +55,9 @@
   .map-credit i{width:8px; height:8px; border-radius:50%; background:#e74c3c; animation:pulse 2s infinite;}
 
   /* 7-day bar over the map */
-  .map-foot{position:absolute; left:0; right:0; bottom:0; height:132px; background:var(--card); border-top:1px solid var(--border); box-shadow:0 -4px 16px rgba(39,52,69,.08); z-index:2; display:flex; gap:10px; padding:12px 14px;}
+  .map-foot{position:absolute; left:0; right:0; bottom:0; height:154px; background:var(--card); border-top:1px solid var(--border); box-shadow:0 -4px 16px rgba(39,52,69,.08); z-index:2; display:flex; flex-direction:column; gap:8px; padding:10px 14px 12px;}
+  .map-foot .rail-title{margin:0 0 0 2px;}
+  .days{flex:1 1 0; min-height:0; display:flex; gap:10px;}
   .day{flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; background:var(--soft); border:1px solid var(--border); border-radius:12px; padding:8px 4px;}
   .day .d{font-family:'Space Grotesk'; font-weight:600; font-size:15px;}
   .day .i{font-size:34px; line-height:1;}
@@ -117,6 +120,7 @@
 
   <div class="layout">
     <div class="hours-col">
+      <p class="rail-title first">Current Weather</p>
       <div class="cur" id="currentWx"><div class="loading">Loading…</div></div>
       <p class="rail-title">Next 12 hours</p>
       <div class="hours" id="hours"><div class="loading">Loading…</div></div>
@@ -135,7 +139,10 @@
           <div class="u" id="updated">updating…</div>
         </div>
       </div>
-      <div class="map-foot" id="days"><div class="loading">Loading…</div></div>
+      <div class="map-foot">
+        <p class="rail-title">Next 7 Days</p>
+        <div class="days" id="days"><div class="loading">Loading…</div></div>
+      </div>
     </div>
   </div>
 
