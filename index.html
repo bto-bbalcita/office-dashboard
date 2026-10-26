@@ -11,7 +11,7 @@
   :root{
     --card:#ffffff; --soft:#eef4fb; --border:#dce6f1;
     --text:#273445; --dim:#6a7789; --accent:#1cace9;
-    --shadow:0 10px 30px rgba(39,52,69,.08); --bar-h:66px; --map-bar-h:80px;
+    --shadow:0 10px 30px rgba(39,52,69,.08); --bar-h:76px; --map-bar-h:104px;
   }
   *{box-sizing:border-box;}
   html,body{height:100%; margin:0; overflow:hidden;}
@@ -25,7 +25,7 @@
   .bar{height:var(--bar-h); flex:0 0 auto; display:flex; align-items:center; justify-content:space-between; gap:14px; padding:0 26px;
     background:var(--card); border-top:4px solid var(--accent); border-bottom:1px solid var(--border); box-shadow:0 6px 24px rgba(39,52,69,.12); z-index:6;}
   .bar-left{display:flex; align-items:center; gap:20px;}
-  .bto-logo{height:27px; width:auto; display:block;}
+  .bto-logo{height:44px; width:auto; display:block;}
   .live{width:9px; height:9px; border-radius:50%; background:#2ecc71; animation:pulse 2.4s infinite; flex:0 0 auto;}
   @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(46,204,113,.5)}70%{box-shadow:0 0 0 8px rgba(46,204,113,0)}100%{box-shadow:0 0 0 0 rgba(46,204,113,0)}}
   .bar-right{display:flex; align-items:center; gap:20px;}
@@ -35,24 +35,25 @@
   /* split layout: separate floating panels */
   .layout{flex:1 1 auto; min-height:0; display:flex; padding:14px; gap:14px;}
 
-  .hours-col{flex:0 0 296px; background:var(--card); border:1px solid var(--border); border-radius:18px; box-shadow:var(--shadow); overflow-y:auto; padding:14px;}
-  .rail-title{font-family:'Space Grotesk'; font-weight:600; font-size:12px; letter-spacing:.09em; text-transform:uppercase; color:var(--dim); margin:16px 0 10px 2px;}
+  .hours-col{flex:0 0 296px; background:var(--card); border:1px solid var(--border); border-radius:18px; box-shadow:var(--shadow); display:flex; flex-direction:column; overflow:hidden; padding:14px;}
+  .rail-title{font-family:'Space Grotesk'; font-weight:600; font-size:12px; letter-spacing:.09em; text-transform:uppercase; color:var(--dim); margin:16px 0 10px 2px; flex:0 0 auto;}
 
   .map-col{flex:1; position:relative; min-width:0; border:1px solid var(--border); border-radius:18px; overflow:hidden; box-shadow:var(--shadow);}
   .map-col iframe{position:absolute; inset:0; width:100%; height:100%; border:0;}
 
-  /* info bar over the map (flush to the top so it fully covers Waze's own banner) */
+  /* info bar over the map (flush to top/left/right so it fully covers Waze's own banner) */
   .map-mask{position:absolute; top:0; left:0; right:0; height:var(--map-bar-h); background:var(--card); border-bottom:1px solid var(--border); box-shadow:0 4px 16px rgba(39,52,69,.08); z-index:2;
-    display:flex; align-items:center; justify-content:flex-end; padding:0 24px;}
-  .map-info{display:flex; flex-direction:column; align-items:flex-end; gap:7px;}
-  .map-credit{display:flex; align-items:center; gap:7px; font-size:12px; color:var(--dim); white-space:nowrap;}
+    display:flex; align-items:center; justify-content:space-between; gap:18px; padding:0 24px;}
+  .map-info{display:flex; flex-direction:column; align-items:flex-start; gap:6px; min-width:0;}
+  .map-title{display:flex; align-items:center; gap:10px; font-family:'Space Grotesk'; font-weight:600; font-size:19px; white-space:nowrap;}
+  .map-time{display:flex; align-items:baseline; gap:10px; white-space:nowrap;}
+  .map-time .t{font-family:'Space Grotesk'; font-weight:700; font-size:30px; line-height:1; font-variant-numeric:tabular-nums;}
+  .map-time .u{font-size:11px; color:var(--dim);}
+  .map-credit{display:flex; align-items:center; gap:7px; font-size:12px; color:var(--dim); white-space:nowrap; align-self:flex-start; margin-top:24px;}
   .map-credit i{width:8px; height:8px; border-radius:50%; background:#e74c3c; animation:pulse 2s infinite;}
-  .map-title{display:flex; align-items:center; gap:10px; font-family:'Space Grotesk'; font-weight:600; font-size:17px; white-space:nowrap;}
-  .map-title .t{font-weight:700; font-size:21px; font-variant-numeric:tabular-nums; margin-left:8px;}
-  .map-title .u{font-family:'Inter'; font-weight:400; font-size:11px; color:var(--dim);}
 
   /* 7-day bar over the map */
-  .map-foot{position:absolute; left:12px; right:12px; bottom:12px; height:132px; background:var(--card); border:1px solid var(--border); border-radius:16px; box-shadow:var(--shadow); z-index:2; display:flex; gap:10px; padding:12px 14px;}
+  .map-foot{position:absolute; left:0; right:0; bottom:0; height:132px; background:var(--card); border-top:1px solid var(--border); box-shadow:0 -4px 16px rgba(39,52,69,.08); z-index:2; display:flex; gap:10px; padding:12px 14px;}
   .day{flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; background:var(--soft); border:1px solid var(--border); border-radius:12px; padding:8px 4px;}
   .day .d{font-family:'Space Grotesk'; font-weight:600; font-size:15px;}
   .day .i{font-size:34px; line-height:1;}
@@ -61,15 +62,15 @@
   .day .hl .lo{color:var(--dim);}
 
   /* hourly list */
-  .hours{display:flex; flex-direction:column; gap:6px;}
-  .hour{display:flex; align-items:center; gap:10px; background:var(--soft); border:1px solid var(--border); border-radius:11px; padding:7px 12px;}
+  .hours{display:flex; flex-direction:column; gap:6px; flex:1 1 0; min-height:0;}
+  .hour{display:flex; align-items:center; gap:10px; background:var(--soft); border:1px solid var(--border); border-radius:11px; padding:0 12px; flex:1 1 0; min-height:0; max-height:56px;}
   .hour .h{font-size:13px; color:var(--dim); font-weight:600; width:42px;}
   .hour .i{font-size:22px; width:28px; text-align:center;}
   .hour .tp{font-family:'Space Grotesk'; font-weight:700; font-size:18px; margin-left:auto;}
   .hour .pp{font-size:12px; color:var(--accent); font-weight:600; width:48px; text-align:right;}
 
   /* current conditions card */
-  .cur{border:1px solid var(--border); border-radius:14px; padding:14px; background:linear-gradient(180deg,#f6fbff,#eaf3fb);}
+  .cur{flex:0 0 auto; border:1px solid var(--border); border-radius:14px; padding:14px; background:linear-gradient(180deg,#f6fbff,#eaf3fb);}
   .cur-top{display:flex; align-items:center; gap:12px;}
   .cur-icon{font-size:50px; line-height:1;}
   .cur-temp{font-family:'Space Grotesk'; font-weight:700; font-size:46px; line-height:1;}
@@ -83,12 +84,21 @@
   .loading,.err{padding:26px; text-align:center; color:var(--dim); font-size:14px;}
   .err{color:#c0392b;}
 
+  @media (max-height:860px){
+    .cur{padding:10px;}
+    .cur-icon{font-size:40px;}
+    .cur-temp{font-size:38px;}
+    .cur-stats{margin-top:8px;}
+    .rail-title{margin:10px 0 8px 2px;}
+    .hours{gap:4px;}
+  }
+
   @media (max-width:900px){
     html,body{overflow:auto;}
     .layout{flex-direction:column;}
-    .hours-col{flex:0 0 auto;}
-    .hours{flex-direction:row; flex-wrap:wrap;}
-    .hour{flex:1 1 90px;}
+    .hours-col{flex:0 0 auto; overflow:visible;}
+    .hours{flex:0 0 auto; flex-direction:row; flex-wrap:wrap;}
+    .hour{flex:1 1 90px; padding:8px 12px; max-height:none;}
     .map-col{height:62vh; min-height:400px;}
   }
 </style>
@@ -114,9 +124,10 @@
       <iframe id="map" allowfullscreen referrerpolicy="no-referrer-when-downgrade" title="Live traffic around BillionToOne offices"></iframe>
       <div class="map-mask">
         <div class="map-info">
-          <div class="map-credit"><i></i> Live traffic · via Waze</div>
-          <div class="map-title"><span class="live"></span><span id="locName">Union City, CA – Live Traffic View</span><span class="t" id="clock">--:--</span><span class="u" id="updated">updating…</span></div>
+          <div class="map-title"><span class="live"></span><span id="locName">Union City, CA – Live Traffic View</span></div>
+          <div class="map-time"><span class="t" id="clock">--:--</span><span class="u" id="updated">updating…</span></div>
         </div>
+        <div class="map-credit"><i></i> Live traffic · via Waze</div>
       </div>
       <div class="map-foot" id="days"><div class="loading">Loading…</div></div>
     </div>
