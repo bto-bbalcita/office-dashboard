@@ -10,7 +10,7 @@
 <style>
   :root{
     --card:#ffffff; --soft:#eef4fb; --border:#dce6f1;
-    --text:#273445; --dim:#6a7789; --accent:#1cace9; --navy:#303b4a;
+    --text:#273445; --dim:#6a7789; --accent:#1cace9;
     --shadow:0 10px 30px rgba(39,52,69,.08); --bar-h:66px;
   }
   *{box-sizing:border-box;}
@@ -23,7 +23,7 @@
 
   /* top bar */
   .bar{height:var(--bar-h); flex:0 0 auto; display:flex; align-items:center; justify-content:space-between; gap:14px; padding:0 26px;
-    background:var(--card); border-top:4px solid var(--accent); border-bottom:1px solid var(--border); box-shadow:var(--shadow); z-index:6;}
+    background:var(--card); border-top:4px solid var(--accent); border-bottom:1px solid var(--border); box-shadow:0 6px 24px rgba(39,52,69,.12); z-index:6;}
   .bar-left{display:flex; align-items:center; gap:20px;}
   .bto-logo{height:27px; width:auto; display:block;}
   .loc{font-family:'Space Grotesk'; font-weight:600; font-size:18px; display:flex; align-items:center; gap:9px;}
@@ -36,13 +36,17 @@
   .iconbtn{background:var(--soft); border:1px solid var(--border); color:var(--text); width:40px; height:40px; border-radius:11px; cursor:pointer; font-size:17px; display:grid; place-items:center;}
   .iconbtn:hover{box-shadow:0 0 14px rgba(28,172,233,.3);}
 
-  /* split layout */
-  .layout{flex:1 1 auto; min-height:0; display:flex;}
-  .hours-col{flex:0 0 234px; background:var(--card); border-right:1px solid var(--border); overflow-y:auto; padding:16px 14px;}
+  /* split layout: separate floating panels */
+  .layout{flex:1 1 auto; min-height:0; display:flex; padding:14px; gap:14px;}
+
+  .hours-col{flex:0 0 234px; background:var(--card); border:1px solid var(--border); border-radius:18px; box-shadow:var(--shadow); overflow-y:auto; padding:16px 14px;}
   .rail-title{font-family:'Space Grotesk'; font-weight:600; font-size:12px; letter-spacing:.09em; text-transform:uppercase; color:var(--dim); margin:2px 0 12px 2px;}
-  .map-col{flex:1; position:relative; min-width:0;}
+
+  .map-col{flex:1; position:relative; min-width:0; border:1px solid var(--border); border-radius:18px; overflow:hidden; box-shadow:var(--shadow);}
   .map-col iframe{position:absolute; inset:0; width:100%; height:100%; border:0;}
-  .map-mask{position:absolute; top:0; left:0; right:0; height:110px; background:var(--card); border-bottom:1px solid var(--border); z-index:2;
+
+  /* weather header over the map */
+  .map-mask{position:absolute; top:12px; left:12px; right:12px; height:110px; background:var(--card); border:1px solid var(--border); border-radius:16px; box-shadow:var(--shadow); z-index:2;
     display:flex; align-items:center; justify-content:space-between; gap:18px; padding:0 24px;}
   .mw{display:flex; align-items:center; gap:20px; min-width:0;}
   .mw-icon{font-size:52px; line-height:1;}
@@ -55,31 +59,16 @@
   .map-credit{display:flex; align-items:center; gap:7px; font-size:12px; color:var(--dim); white-space:nowrap; align-self:flex-start; margin-top:12px;}
   .map-credit i{width:8px; height:8px; border-radius:50%; background:#e74c3c; animation:pulse 2s infinite;}
 
-  .map-foot{position:absolute; left:0; right:0; bottom:0; height:132px; background:var(--card); border-top:1px solid var(--border); z-index:2; display:flex; gap:10px; padding:12px 14px;}
+  /* 7-day bar over the map */
+  .map-foot{position:absolute; left:12px; right:12px; bottom:12px; height:132px; background:var(--card); border:1px solid var(--border); border-radius:16px; box-shadow:var(--shadow); z-index:2; display:flex; gap:10px; padding:12px 14px;}
+  .day{flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; background:var(--soft); border:1px solid var(--border); border-radius:12px; padding:8px 4px;}
+  .day .d{font-family:'Space Grotesk'; font-weight:600; font-size:15px;}
+  .day .i{font-size:34px; line-height:1;}
+  .day .pp{font-size:12px; color:var(--accent); font-weight:600; min-height:15px;}
+  .day .hl{font-family:'Space Grotesk'; font-weight:600; font-size:17px;}
+  .day .hl .lo{color:var(--dim);}
 
-    .day{flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; background:var(--soft); border:1px solid var(--border); border-radius:12px; padding:8px 4px;}
-    .day .d{font-family:'Space Grotesk'; font-weight:600; font-size:15px;}
-    .day .i{font-size:34px; line-height:1;}
-    .day .pp{font-size:12px; color:var(--accent); font-weight:600; min-height:15px;}
-    .day .hl{font-family:'Space Grotesk'; font-weight:600; font-size:17px;}
-
-  .card{background:var(--card); border:1px solid var(--border); border-radius:18px; box-shadow:var(--shadow);}
-  .sec-title{font-family:'Space Grotesk'; font-weight:600; font-size:12px; letter-spacing:.09em; text-transform:uppercase; color:var(--dim); margin:2px 0 8px 4px;}
-
-  /* current */
-  .current{padding:18px 20px;}
-  .cur-top{display:flex; align-items:center; gap:16px;}
-  .cur-icon{font-size:58px; line-height:1;}
-  .cur-temp{font-family:'Space Grotesk'; font-weight:700; font-size:58px; line-height:.95;}
-  .cur-temp sup{font-size:24px; vertical-align:top; color:var(--dim);}
-  .cur-meta .cond{font-family:'Space Grotesk'; font-weight:600; font-size:18px;}
-  .cur-meta .feels{color:var(--dim); font-size:13px; margin-top:2px;}
-  .cur-stats{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:16px;}
-  .stat{background:var(--soft); border:1px solid var(--border); border-radius:11px; padding:9px 11px;}
-  .stat .lbl{font-size:10.5px; color:var(--dim); text-transform:uppercase; letter-spacing:.05em;}
-  .stat .val{font-family:'Space Grotesk'; font-weight:600; font-size:16px; margin-top:2px;}
-
-  /* hourly */
+  /* hourly list */
   .hours{display:flex; flex-direction:column; gap:8px;}
   .hour{display:flex; align-items:center; gap:10px; background:var(--soft); border:1px solid var(--border); border-radius:11px; padding:9px 12px;}
   .hour .h{font-size:13px; color:var(--dim); font-weight:600; width:42px;}
@@ -87,29 +76,13 @@
   .hour .tp{font-family:'Space Grotesk'; font-weight:700; font-size:18px; margin-left:auto;}
   .hour .pp{font-size:12px; color:var(--accent); font-weight:600; width:48px; text-align:right;}
 
-  /* daily list */
-  .day{flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; background:var(--soft); border:1px solid var(--border); border-radius:10px; padding:6px 4px;}
-  .day .d{font-family:'Space Grotesk'; font-weight:600; font-size:13px;}
-  .day .i{font-size:26px; line-height:1;}
-  .day .pp{font-size:11px; color:var(--accent); font-weight:600; min-height:13px;}
-  .day .hl{font-family:'Space Grotesk'; font-weight:600; font-size:14px;}
-  .day .hl .lo{color:var(--dim);}
-
   .loading,.err{padding:26px; text-align:center; color:var(--dim); font-size:14px;}
   .err{color:#c0392b;}
 
-  /* panel separation */
-  .bar{margin-bottom:0; box-shadow:0 6px 24px rgba(39,52,69,.12);}
-  .layout{padding:14px; gap:14px;}
-  .hours-col{border:1px solid var(--border); border-radius:18px; box-shadow:var(--shadow);}
-  .map-col{border:1px solid var(--border); border-radius:18px; overflow:hidden; box-shadow:var(--shadow);}
-  .map-mask{top:12px; left:12px; right:12px; border:1px solid var(--border); border-radius:16px; box-shadow:var(--shadow);}
-  .map-foot{left:12px; right:12px; bottom:12px; border:1px solid var(--border); border-radius:16px; box-shadow:var(--shadow);}
-  
   @media (max-width:900px){
     html,body{overflow:auto;}
     .layout{flex-direction:column;}
-    .hours-col{flex:0 0 auto; border-right:none; border-bottom:1px solid var(--border);}
+    .hours-col{flex:0 0 auto;}
     .hours{flex-direction:row; flex-wrap:wrap;}
     .hour{flex:1 1 90px;}
     .map-col{height:62vh; min-height:400px;}
@@ -156,6 +129,8 @@
     "&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunrise,sunset"+
     "&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&timezone=auto&forecast_days=7";
 
+  var loaded = false;
+
   function wx(code){
     var m={0:["☀️","Clear sky"],1:["🌤️","Mainly clear"],2:["⛅","Partly cloudy"],3:["☁️","Overcast"],
       45:["🌫️","Fog"],48:["🌫️","Rime fog"],51:["🌦️","Light drizzle"],53:["🌦️","Drizzle"],55:["🌦️","Heavy drizzle"],
@@ -170,30 +145,54 @@
   function hhmm(d){ var h=d.getHours(),m=d.getMinutes(),ap=h>=12?"PM":"AM"; h=h%12; if(h===0)h=12; return h+":"+two(m)+" "+ap; }
   function hourLabel(d,i){ if(i===0) return "Now"; var h=d.getHours(),ap=h>=12?"P":"A"; h=h%12; if(h===0)h=12; return h+ap; }
   function dayLabel(d,i){ if(i===0) return "Today"; return ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][d.getDay()]; }
-  function stat(lbl,val){ return '<div class="stat"><div class="lbl">'+lbl+'</div><div class="val">'+val+'</div></div>'; }
+
+  // Most common hourly weather code during daytime (7am-7pm) for a given date string (YYYY-MM-DD).
+  // Falls back to the API's daily code if no hourly data is found.
+  function dayCode(h, dateStr, fallback){
+    var counts={}, best=null, bestN=0;
+    for(var i=0;i<h.time.length;i++){
+      if(h.time[i].slice(0,10)!==dateStr) continue;
+      var hr=parseInt(h.time[i].slice(11,13),10);
+      if(hr<7||hr>19) continue;
+      var c=h.weather_code[i];
+      counts[c]=(counts[c]||0)+1;
+      if(counts[c]>bestN){ bestN=counts[c]; best=c; }
+    }
+    return best===null?fallback:best;
+  }
 
   function render(data){
-    var c=data.current, d=data.daily, cw=wx(c.weather_code);
+    var c=data.current, d=data.daily, h=data.hourly, cw=wx(c.weather_code);
     var pp0=(d.precipitation_probability_max[0]!=null?d.precipitation_probability_max[0]:0);
+
+    // header weather
     document.getElementById("mapWeather").innerHTML=
       '<span class="mw-icon">'+cw[0]+'</span>'+
       '<span class="mw-temp">'+r(c.temperature_2m)+'<sup>°F</sup></span>'+
       '<div class="mw-info"><span class="mw-cond">'+cw[1]+'</span>'+
         '<span class="mw-chips">Feels '+r(c.apparent_temperature)+'° &nbsp;·&nbsp; 💧 '+c.relative_humidity_2m+'% &nbsp;·&nbsp; 💨 '+r(c.wind_speed_10m)+' mph &nbsp;·&nbsp; ☔ '+pp0+'% &nbsp;·&nbsp; <b>⬆ '+r(d.temperature_2m_max[0])+'° &nbsp;⬇ '+r(d.temperature_2m_min[0])+'°</b></span></div>';
 
-    var h=data.hourly, now=Date.now(), start=0;
+    // next 12 hours (first row uses live "current" data so it matches the header)
+    var now=Date.now(), start=0;
     for(var i=0;i<h.time.length;i++){ if(new Date(h.time[i]).getTime() >= now-3600000){ start=i; break; } }
     var html="";
     for(var j=start;j<start+12 && j<h.time.length;j++){
-      var dt=new Date(h.time[j]), w=wx(h.weather_code[j]), pp=h.precipitation_probability[j];
+      var isNow=(j===start);
+      var dt=new Date(h.time[j]);
+      var w=isNow?cw:wx(h.weather_code[j]);
+      var temp=isNow?c.temperature_2m:h.temperature_2m[j];
+      var pp=h.precipitation_probability[j];
       html+='<div class="hour"><div class="h">'+hourLabel(dt,j-start)+'</div><div class="i">'+w[0]+'</div>'+
-        '<div class="tp">'+r(h.temperature_2m[j])+'°</div><div class="pp">'+(pp>0?('💧'+pp+'%'):'')+'</div></div>';
+        '<div class="tp">'+r(temp)+'°</div><div class="pp">'+(pp>0?('💧'+pp+'%'):'')+'</div></div>';
     }
     document.getElementById("hours").innerHTML=html;
 
+    // 7-day bar
     var dhtml="";
     for(var k=0;k<d.time.length;k++){
-      var dd=new Date(d.time[k]+"T12:00:00"), w2=wx(d.weather_code[k]), pp2=d.precipitation_probability_max[k];
+      var dd=new Date(d.time[k]+"T12:00:00");
+      var w2=wx(dayCode(h, d.time[k], d.weather_code[k]));
+      var pp2=d.precipitation_probability_max[k];
       dhtml+='<div class="day"><div class="d">'+dayLabel(dd,k)+'</div><div class="i">'+w2[0]+'</div>'+
         '<div class="pp">'+(pp2>0?('💧'+pp2+'%'):'')+'</div>'+
         '<div class="hl">'+r(d.temperature_2m_max[k])+'° <span class="lo">'+r(d.temperature_2m_min[k])+'°</span></div></div>';
@@ -201,12 +200,19 @@
     document.getElementById("days").innerHTML=dhtml;
 
     document.getElementById("updated").textContent="updated "+hhmm(new Date());
+    loaded=true;
   }
 
   function fetchWeather(){
     fetch(API).then(function(res){ if(!res.ok) throw new Error(res.status); return res.json(); })
       .then(render)
-      .catch(function(e){ document.getElementById("current").innerHTML='<div class="err">Could not load weather ('+e.message+'). Retrying…</div>'; });
+      .catch(function(e){
+        // keep showing the last good data if we have it; only show an error on first load
+        if(!loaded){
+          document.getElementById("mapWeather").innerHTML='<div class="err">Could not load weather ('+e.message+'). Retrying…</div>';
+        }
+        setTimeout(fetchWeather, 30*1000);
+      });
   }
   function refreshMap(){ document.getElementById("map").src=wazeSrc(); }
   function tickClock(){ document.getElementById("clock").textContent=hhmm(new Date()); }
