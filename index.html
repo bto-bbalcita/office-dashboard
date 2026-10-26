@@ -11,7 +11,7 @@
   :root{
     --card:#ffffff; --soft:#eef4fb; --border:#dce6f1;
     --text:#273445; --dim:#6a7789; --accent:#1cace9;
-    --shadow:0 10px 30px rgba(39,52,69,.08); --bar-h:66px;
+    --shadow:0 10px 30px rgba(39,52,69,.08); --bar-h:66px; --map-bar-h:80px;
   }
   *{box-sizing:border-box;}
   html,body{height:100%; margin:0; overflow:hidden;}
@@ -26,38 +26,30 @@
     background:var(--card); border-top:4px solid var(--accent); border-bottom:1px solid var(--border); box-shadow:0 6px 24px rgba(39,52,69,.12); z-index:6;}
   .bar-left{display:flex; align-items:center; gap:20px;}
   .bto-logo{height:27px; width:auto; display:block;}
-  .loc{font-family:'Space Grotesk'; font-weight:600; font-size:18px; display:flex; align-items:center; gap:9px;}
-  .loc .live{width:9px; height:9px; border-radius:50%; background:#2ecc71; animation:pulse 2.4s infinite;}
+  .live{width:9px; height:9px; border-radius:50%; background:#2ecc71; animation:pulse 2.4s infinite; flex:0 0 auto;}
   @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(46,204,113,.5)}70%{box-shadow:0 0 0 8px rgba(46,204,113,0)}100%{box-shadow:0 0 0 0 rgba(46,204,113,0)}}
   .bar-right{display:flex; align-items:center; gap:20px;}
-  .clock{text-align:right; line-height:1.1;}
-  .clock .t{font-family:'Space Grotesk'; font-weight:700; font-size:23px; font-variant-numeric:tabular-nums;}
-  .clock .u{font-size:11px; color:var(--dim); margin-top:2px;}
   .iconbtn{background:var(--soft); border:1px solid var(--border); color:var(--text); width:40px; height:40px; border-radius:11px; cursor:pointer; font-size:17px; display:grid; place-items:center;}
   .iconbtn:hover{box-shadow:0 0 14px rgba(28,172,233,.3);}
 
   /* split layout: separate floating panels */
   .layout{flex:1 1 auto; min-height:0; display:flex; padding:14px; gap:14px;}
 
-  .hours-col{flex:0 0 234px; background:var(--card); border:1px solid var(--border); border-radius:18px; box-shadow:var(--shadow); overflow-y:auto; padding:16px 14px;}
-  .rail-title{font-family:'Space Grotesk'; font-weight:600; font-size:12px; letter-spacing:.09em; text-transform:uppercase; color:var(--dim); margin:2px 0 12px 2px;}
+  .hours-col{flex:0 0 296px; background:var(--card); border:1px solid var(--border); border-radius:18px; box-shadow:var(--shadow); overflow-y:auto; padding:14px;}
+  .rail-title{font-family:'Space Grotesk'; font-weight:600; font-size:12px; letter-spacing:.09em; text-transform:uppercase; color:var(--dim); margin:16px 0 10px 2px;}
 
   .map-col{flex:1; position:relative; min-width:0; border:1px solid var(--border); border-radius:18px; overflow:hidden; box-shadow:var(--shadow);}
   .map-col iframe{position:absolute; inset:0; width:100%; height:100%; border:0;}
 
-  /* weather header over the map */
-  .map-mask{position:absolute; top:12px; left:12px; right:12px; height:110px; background:var(--card); border:1px solid var(--border); border-radius:16px; box-shadow:var(--shadow); z-index:2;
-    display:flex; align-items:center; justify-content:space-between; gap:18px; padding:0 24px;}
-  .mw{display:flex; align-items:center; gap:20px; min-width:0;}
-  .mw-icon{font-size:52px; line-height:1;}
-  .mw-temp{font-family:'Space Grotesk'; font-weight:700; font-size:50px; line-height:1;}
-  .mw-temp sup{font-size:19px; vertical-align:top; color:var(--dim);}
-  .mw-info{display:flex; flex-direction:column; gap:5px; min-width:0;}
-  .mw-cond{font-family:'Space Grotesk'; font-weight:600; font-size:20px;}
-  .mw-chips{font-size:14px; color:var(--dim); white-space:normal; line-height:1.45;}
-  .mw-chips b{color:var(--text); font-weight:600;}
-  .map-credit{display:flex; align-items:center; gap:7px; font-size:12px; color:var(--dim); white-space:nowrap; align-self:flex-start; margin-top:12px;}
+  /* info bar over the map (flush to the top so it fully covers Waze's own banner) */
+  .map-mask{position:absolute; top:0; left:0; right:0; height:var(--map-bar-h); background:var(--card); border-bottom:1px solid var(--border); box-shadow:0 4px 16px rgba(39,52,69,.08); z-index:2;
+    display:flex; align-items:center; justify-content:flex-end; padding:0 24px;}
+  .map-info{display:flex; flex-direction:column; align-items:flex-end; gap:7px;}
+  .map-credit{display:flex; align-items:center; gap:7px; font-size:12px; color:var(--dim); white-space:nowrap;}
   .map-credit i{width:8px; height:8px; border-radius:50%; background:#e74c3c; animation:pulse 2s infinite;}
+  .map-title{display:flex; align-items:center; gap:10px; font-family:'Space Grotesk'; font-weight:600; font-size:17px; white-space:nowrap;}
+  .map-title .t{font-weight:700; font-size:21px; font-variant-numeric:tabular-nums; margin-left:8px;}
+  .map-title .u{font-family:'Inter'; font-weight:400; font-size:11px; color:var(--dim);}
 
   /* 7-day bar over the map */
   .map-foot{position:absolute; left:12px; right:12px; bottom:12px; height:132px; background:var(--card); border:1px solid var(--border); border-radius:16px; box-shadow:var(--shadow); z-index:2; display:flex; gap:10px; padding:12px 14px;}
@@ -69,12 +61,24 @@
   .day .hl .lo{color:var(--dim);}
 
   /* hourly list */
-  .hours{display:flex; flex-direction:column; gap:8px;}
-  .hour{display:flex; align-items:center; gap:10px; background:var(--soft); border:1px solid var(--border); border-radius:11px; padding:9px 12px;}
+  .hours{display:flex; flex-direction:column; gap:6px;}
+  .hour{display:flex; align-items:center; gap:10px; background:var(--soft); border:1px solid var(--border); border-radius:11px; padding:7px 12px;}
   .hour .h{font-size:13px; color:var(--dim); font-weight:600; width:42px;}
   .hour .i{font-size:22px; width:28px; text-align:center;}
   .hour .tp{font-family:'Space Grotesk'; font-weight:700; font-size:18px; margin-left:auto;}
   .hour .pp{font-size:12px; color:var(--accent); font-weight:600; width:48px; text-align:right;}
+
+  /* current conditions card */
+  .cur{border:1px solid var(--border); border-radius:14px; padding:14px; background:linear-gradient(180deg,#f6fbff,#eaf3fb);}
+  .cur-top{display:flex; align-items:center; gap:12px;}
+  .cur-icon{font-size:50px; line-height:1;}
+  .cur-temp{font-family:'Space Grotesk'; font-weight:700; font-size:46px; line-height:1;}
+  .cur-temp sup{font-size:18px; vertical-align:top; color:var(--dim);}
+  .cur-cond{font-family:'Space Grotesk'; font-weight:600; font-size:16px; margin-top:4px;}
+  .cur-stats{display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-top:12px;}
+  .stat{background:var(--card); border:1px solid var(--border); border-radius:10px; padding:7px 6px; text-align:center;}
+  .stat .lbl{font-size:9.5px; color:var(--dim); text-transform:uppercase; letter-spacing:.04em;}
+  .stat .val{font-family:'Space Grotesk'; font-weight:600; font-size:15px; margin-top:2px; white-space:nowrap;}
 
   .loading,.err{padding:26px; text-align:center; color:var(--dim); font-size:14px;}
   .err{color:#c0392b;}
@@ -93,16 +97,15 @@
   <div class="bar">
     <div class="bar-left">
       <svg class="bto-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 987.5 129.17" role="img" aria-label="BillionToOne"><defs><style>.d{fill:#fff;}.e{fill:#cbced5;}.f{fill:#303b4a;}.g{fill:#1cace9;}</style></defs><g><g><g><g><g><path class="f" d="M0,17.14H29.36c15.46,0,21.84,1.28,26.94,5.25,5.53,4.25,9.08,11.91,9.08,19.71s-3.97,14.89-11.06,19c10.35,3.4,15.74,11.06,15.74,22.12,0,8.08-3.12,15.46-8.79,20.71-6.95,6.52-13.47,8.23-31.06,8.23H0V17.14ZM31.91,53.16c6.95,0,10.21-2.27,10.21-7.52,0-2.55-1.28-4.82-3.26-5.96-1.7-.99-2.84-1.13-6.95-1.13h-8.65v14.61h8.65Zm2.84,37.58c7.8,0,12.05-3.12,12.05-9.08,0-2.55-1.28-5.11-3.26-6.52-1.99-1.28-3.97-1.7-8.79-1.7h-11.49v17.3h11.49Z"/><path class="f" d="M83.95,17.14h24.25V112.15h-24.25V17.14Z"/><path class="f" d="M126.5,17.14h24.25V90.74h28.08v21.41h-52.33V17.14Z"/><path class="f" d="M188.9,17.14h24.25V90.74h28.08v21.41h-52.33V17.14Z"/><path class="f" d="M251.3,17.14h24.25V112.15h-24.25V17.14Z"/><path class="f" d="M338.94,15.15c28.22,0,50.34,21.7,50.34,49.49s-22.12,49.35-50.2,49.35-50.2-21.41-50.2-50.06,22.12-48.78,50.06-48.78Zm.57,77.43c14.32,0,25.53-12.2,25.53-27.8s-11.35-28.22-25.95-28.22-25.95,12.05-25.95,27.51c0,16.31,11.2,28.5,26.38,28.5Z"/><path class="f" d="M402.48,17.14h20.85l37.16,59.7-.99-59.7h23.26V112.15h-21.13l-36.73-57.86,.85,57.86h-23.26V17.14Z"/></g><g><path class="e" d="M519.57,38.57h-18.86V17.16h61.83v21.41h-18.72V112.17h-24.25V38.57Z"/><path class="e" d="M615.73,15.17c28.22,0,50.34,21.7,50.34,49.49s-22.12,49.35-50.2,49.35-50.2-21.41-50.2-50.06,22.12-48.78,50.06-48.78Zm.57,77.43c14.32,0,25.53-12.2,25.53-27.8s-11.35-28.22-25.95-28.22-25.95,12.05-25.95,27.51c0,16.31,11.2,28.5,26.38,28.5Z"/></g></g><rect class="g" x="689.11" y="0" width="298.39" height="129.17"/><g><path class="d" d="M754.73,20.83c24.99,0,44.58,19.21,44.58,43.82s-19.59,43.7-44.45,43.7-44.45-18.96-44.45-44.32,19.59-43.19,44.32-43.19Zm.5,68.56c12.68,0,22.6-10.8,22.6-24.61s-10.04-24.99-22.98-24.99-22.98,10.67-22.98,24.36c0,14.44,9.92,25.24,23.35,25.24Z"/><path class="d" d="M820.41,22.58h18.46l32.9,52.86-.88-52.86h20.59V106.71h-18.71l-32.52-51.23,.75,51.23h-20.59V22.58Z"/><path class="d" d="M915.21,22.58h46.84v18.96h-26.24v12.93h25.36v18.96h-25.36v14.31h26.24v18.96h-46.84V22.58Z"/></g></g></g></g></svg>
-      <span class="loc"><span class="live"></span><span id="locName">Union City, CA</span></span>
     </div>
     <div class="bar-right">
-      <div class="clock"><div class="t" id="clock">--:--</div><div class="u" id="updated">updating…</div></div>
       <button class="iconbtn" id="fsBtn" title="Toggle full screen">⛶</button>
     </div>
   </div>
 
   <div class="layout">
     <div class="hours-col">
+      <div class="cur" id="currentWx"><div class="loading">Loading…</div></div>
       <p class="rail-title">Next 12 hours</p>
       <div class="hours" id="hours"><div class="loading">Loading…</div></div>
     </div>
@@ -110,8 +113,10 @@
     <div class="map-col">
       <iframe id="map" allowfullscreen referrerpolicy="no-referrer-when-downgrade" title="Live traffic around BillionToOne offices"></iframe>
       <div class="map-mask">
-        <div class="mw" id="mapWeather"><span class="mw-chips">Loading weather…</span></div>
-        <div class="map-credit"><i></i> Live traffic · via Waze</div>
+        <div class="map-info">
+          <div class="map-credit"><i></i> Live traffic · via Waze</div>
+          <div class="map-title"><span class="live"></span><span id="locName">Union City, CA – Live Traffic View</span><span class="t" id="clock">--:--</span><span class="u" id="updated">updating…</span></div>
+        </div>
       </div>
       <div class="map-foot" id="days"><div class="loading">Loading…</div></div>
     </div>
@@ -146,6 +151,8 @@
   function hourLabel(d,i){ if(i===0) return "Now"; var h=d.getHours(),ap=h>=12?"P":"A"; h=h%12; if(h===0)h=12; return h+ap; }
   function dayLabel(d,i){ if(i===0) return "Today"; return ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][d.getDay()]; }
 
+  function stat(lbl,val){ return '<div class="stat"><div class="lbl">'+lbl+'</div><div class="val">'+val+'</div></div>'; }
+
   // Most common hourly weather code during daytime (7am-7pm) for a given date string (YYYY-MM-DD).
   // Falls back to the API's daily code if no hourly data is found.
   function dayCode(h, dateStr, fallback){
@@ -165,12 +172,18 @@
     var c=data.current, d=data.daily, h=data.hourly, cw=wx(c.weather_code);
     var pp0=(d.precipitation_probability_max[0]!=null?d.precipitation_probability_max[0]:0);
 
-    // header weather
-    document.getElementById("mapWeather").innerHTML=
-      '<span class="mw-icon">'+cw[0]+'</span>'+
-      '<span class="mw-temp">'+r(c.temperature_2m)+'<sup>°F</sup></span>'+
-      '<div class="mw-info"><span class="mw-cond">'+cw[1]+'</span>'+
-        '<span class="mw-chips">Feels '+r(c.apparent_temperature)+'° &nbsp;·&nbsp; 💧 '+c.relative_humidity_2m+'% &nbsp;·&nbsp; 💨 '+r(c.wind_speed_10m)+' mph &nbsp;·&nbsp; ☔ '+pp0+'% &nbsp;·&nbsp; <b>⬆ '+r(d.temperature_2m_max[0])+'° &nbsp;⬇ '+r(d.temperature_2m_min[0])+'°</b></span></div>';
+    // current conditions card (left column)
+    document.getElementById("currentWx").innerHTML=
+      '<div class="cur-top"><span class="cur-icon">'+cw[0]+'</span>'+
+        '<div><div class="cur-temp">'+r(c.temperature_2m)+'<sup>°F</sup></div><div class="cur-cond">'+cw[1]+'</div></div></div>'+
+      '<div class="cur-stats">'+
+        stat('Feels like', r(c.apparent_temperature)+'°')+
+        stat('Humidity', c.relative_humidity_2m+'%')+
+        stat('Wind', r(c.wind_speed_10m)+' mph')+
+        stat('Rain', pp0+'%')+
+        stat('High', r(d.temperature_2m_max[0])+'°')+
+        stat('Low', r(d.temperature_2m_min[0])+'°')+
+      '</div>';
 
     // next 12 hours (first row uses live "current" data so it matches the header)
     var now=Date.now(), start=0;
@@ -209,7 +222,7 @@
       .catch(function(e){
         // keep showing the last good data if we have it; only show an error on first load
         if(!loaded){
-          document.getElementById("mapWeather").innerHTML='<div class="err">Could not load weather ('+e.message+'). Retrying…</div>';
+          document.getElementById("currentWx").innerHTML='<div class="err">Could not load weather ('+e.message+'). Retrying…</div>';
         }
         setTimeout(fetchWeather, 30*1000);
       });
