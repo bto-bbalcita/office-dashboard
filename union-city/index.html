@@ -28,9 +28,6 @@
   .bto-logo{height:44px; width:auto; display:block;}
   .live{width:9px; height:9px; border-radius:50%; background:#2ecc71; animation:pulse 2.4s infinite; flex:0 0 auto;}
   @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(46,204,113,.5)}70%{box-shadow:0 0 0 8px rgba(46,204,113,0)}100%{box-shadow:0 0 0 0 rgba(46,204,113,0)}}
-  .bar-right{display:flex; align-items:center; gap:20px;}
-  .iconbtn{background:var(--soft); border:1px solid var(--border); color:var(--text); width:40px; height:40px; border-radius:11px; cursor:pointer; font-size:17px; display:grid; place-items:center;}
-  .iconbtn:hover{box-shadow:0 0 14px rgba(28,172,233,.3);}
 
   /* split layout: separate floating panels */
   .layout{flex:1 1 auto; min-height:0; display:flex; padding:14px; gap:14px;}
@@ -46,10 +43,14 @@
     display:flex; align-items:center; justify-content:space-between; gap:18px; padding:0 24px;}
   .map-info{display:flex; flex-direction:column; align-items:flex-start; gap:6px; min-width:0;}
   .map-title{display:flex; align-items:center; gap:10px; font-family:'Space Grotesk'; font-weight:600; font-size:19px; white-space:nowrap;}
-  .map-time{display:flex; align-items:baseline; gap:10px; white-space:nowrap;}
+  .map-time{display:flex; align-items:center; gap:14px; white-space:nowrap;}
   .map-time .t{font-family:'Space Grotesk'; font-weight:700; font-size:30px; line-height:1; font-variant-numeric:tabular-nums;}
-  .map-time .u{font-size:11px; color:var(--dim);}
-  .map-credit{display:flex; align-items:center; gap:7px; font-size:12px; color:var(--dim); white-space:nowrap; align-self:flex-start; margin-top:24px;}
+  .map-time .sun{padding-left:16px; border-left:1px solid var(--border); font-family:'Space Grotesk'; font-weight:600; font-size:19px; color:var(--text);}
+  .map-time .sun .lbl{font-family:'Inter'; font-weight:500; font-size:12px; color:var(--dim); margin-right:4px;}
+  .map-time .sun:empty{display:none;}
+  .map-right{display:flex; flex-direction:column; align-items:flex-end; gap:6px; align-self:flex-start; margin-top:24px;}
+  .map-right .u{font-size:12px; color:var(--dim);}
+  .map-credit{display:flex; align-items:center; gap:7px; font-size:12px; color:var(--dim); white-space:nowrap;}
   .map-credit i{width:8px; height:8px; border-radius:50%; background:#e74c3c; animation:pulse 2s infinite;}
 
   /* 7-day bar over the map */
@@ -108,9 +109,6 @@
     <div class="bar-left">
       <svg class="bto-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 987.5 129.17" role="img" aria-label="BillionToOne"><defs><style>.d{fill:#fff;}.e{fill:#cbced5;}.f{fill:#303b4a;}.g{fill:#1cace9;}</style></defs><g><g><g><g><g><path class="f" d="M0,17.14H29.36c15.46,0,21.84,1.28,26.94,5.25,5.53,4.25,9.08,11.91,9.08,19.71s-3.97,14.89-11.06,19c10.35,3.4,15.74,11.06,15.74,22.12,0,8.08-3.12,15.46-8.79,20.71-6.95,6.52-13.47,8.23-31.06,8.23H0V17.14ZM31.91,53.16c6.95,0,10.21-2.27,10.21-7.52,0-2.55-1.28-4.82-3.26-5.96-1.7-.99-2.84-1.13-6.95-1.13h-8.65v14.61h8.65Zm2.84,37.58c7.8,0,12.05-3.12,12.05-9.08,0-2.55-1.28-5.11-3.26-6.52-1.99-1.28-3.97-1.7-8.79-1.7h-11.49v17.3h11.49Z"/><path class="f" d="M83.95,17.14h24.25V112.15h-24.25V17.14Z"/><path class="f" d="M126.5,17.14h24.25V90.74h28.08v21.41h-52.33V17.14Z"/><path class="f" d="M188.9,17.14h24.25V90.74h28.08v21.41h-52.33V17.14Z"/><path class="f" d="M251.3,17.14h24.25V112.15h-24.25V17.14Z"/><path class="f" d="M338.94,15.15c28.22,0,50.34,21.7,50.34,49.49s-22.12,49.35-50.2,49.35-50.2-21.41-50.2-50.06,22.12-48.78,50.06-48.78Zm.57,77.43c14.32,0,25.53-12.2,25.53-27.8s-11.35-28.22-25.95-28.22-25.95,12.05-25.95,27.51c0,16.31,11.2,28.5,26.38,28.5Z"/><path class="f" d="M402.48,17.14h20.85l37.16,59.7-.99-59.7h23.26V112.15h-21.13l-36.73-57.86,.85,57.86h-23.26V17.14Z"/></g><g><path class="e" d="M519.57,38.57h-18.86V17.16h61.83v21.41h-18.72V112.17h-24.25V38.57Z"/><path class="e" d="M615.73,15.17c28.22,0,50.34,21.7,50.34,49.49s-22.12,49.35-50.2,49.35-50.2-21.41-50.2-50.06,22.12-48.78,50.06-48.78Zm.57,77.43c14.32,0,25.53-12.2,25.53-27.8s-11.35-28.22-25.95-28.22-25.95,12.05-25.95,27.51c0,16.31,11.2,28.5,26.38,28.5Z"/></g></g><rect class="g" x="689.11" y="0" width="298.39" height="129.17"/><g><path class="d" d="M754.73,20.83c24.99,0,44.58,19.21,44.58,43.82s-19.59,43.7-44.45,43.7-44.45-18.96-44.45-44.32,19.59-43.19,44.32-43.19Zm.5,68.56c12.68,0,22.6-10.8,22.6-24.61s-10.04-24.99-22.98-24.99-22.98,10.67-22.98,24.36c0,14.44,9.92,25.24,23.35,25.24Z"/><path class="d" d="M820.41,22.58h18.46l32.9,52.86-.88-52.86h20.59V106.71h-18.71l-32.52-51.23,.75,51.23h-20.59V22.58Z"/><path class="d" d="M915.21,22.58h46.84v18.96h-26.24v12.93h25.36v18.96h-25.36v14.31h26.24v18.96h-46.84V22.58Z"/></g></g></g></g></svg>
     </div>
-    <div class="bar-right">
-      <button class="iconbtn" id="fsBtn" title="Toggle full screen">⛶</button>
-    </div>
   </div>
 
   <div class="layout">
@@ -125,9 +123,12 @@
       <div class="map-mask">
         <div class="map-info">
           <div class="map-title"><span class="live"></span><span id="locName"></span></div>
-          <div class="map-time"><span class="t" id="clock">--:--</span><span class="u" id="updated">updating…</span></div>
+          <div class="map-time"><span class="t" id="clock">--:--</span><span class="sun" id="sunset"></span></div>
         </div>
-        <div class="map-credit"><i></i> Live traffic · via Waze</div>
+        <div class="map-right">
+          <div class="map-credit"><i></i> Live traffic · via Waze</div>
+          <div class="u" id="updated">updating…</div>
+        </div>
       </div>
       <div class="map-foot" id="days"><div class="loading">Loading…</div></div>
     </div>
@@ -223,6 +224,10 @@
     }
     document.getElementById("days").innerHTML=dhtml;
 
+    // sunset: today's if still ahead, otherwise tomorrow's
+    var si=(d.sunset.length>1 && Date.now()>new Date(d.sunset[0]).getTime())?1:0;
+    document.getElementById("sunset").innerHTML='<span class="lbl">🌇 Sunset</span>'+hhmm(new Date(d.sunset[si]));
+
     document.getElementById("updated").textContent="updated "+hhmm(new Date());
     loaded=true;
   }
@@ -241,10 +246,6 @@
   function refreshMap(){ document.getElementById("map").src=wazeSrc(); }
   function tickClock(){ document.getElementById("clock").textContent=hhmm(new Date()); }
 
-  document.getElementById("fsBtn").addEventListener("click",function(){
-    if(document.fullscreenElement) document.exitFullscreen();
-    else if(document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
-  });
 
   document.getElementById("locName").textContent = LOCATION.name + " – Live Traffic View";
   document.title = LOCATION.name + " Office Dashboard · BillionToOne";
