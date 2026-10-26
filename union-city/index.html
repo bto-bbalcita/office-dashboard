@@ -40,15 +40,14 @@
 
   /* info bar over the map (flush to top/left/right so it fully covers Waze's own banner) */
   .map-mask{position:absolute; top:0; left:0; right:0; height:var(--map-bar-h); background:var(--card); border-bottom:1px solid var(--border); box-shadow:0 4px 16px rgba(39,52,69,.08); z-index:2;
-    display:flex; align-items:center; justify-content:space-between; gap:18px; padding:0 24px;}
-  .map-info{display:flex; flex-direction:column; align-items:flex-start; gap:4px; min-width:0;}
-  .map-title{display:flex; align-items:center; gap:10px; font-family:'Space Grotesk'; font-weight:600; font-size:19px; white-space:nowrap;}
-  .map-time{display:flex; align-items:center; gap:14px; white-space:nowrap;}
-  .map-time .t{font-family:'Space Grotesk'; font-weight:700; font-size:30px; line-height:1; font-variant-numeric:tabular-nums;}
-  .map-info .sun{font-family:'Inter'; font-weight:500; font-size:16px; color:var(--text);}
-  .map-info .sun .lbl{font-family:'Inter'; font-weight:500; font-size:12px; color:var(--dim); margin-right:5px;}
-  .map-info .sun:empty{display:none;}
-  .map-right{display:flex; flex-direction:column; align-items:flex-end; gap:6px; align-self:flex-start; margin-top:24px;}
+    display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:24px; padding:0 24px;}
+  .map-title{justify-self:start; display:flex; align-items:center; gap:10px; font-family:'Space Grotesk'; font-weight:600; font-size:20px; white-space:nowrap;}
+  .map-center{justify-self:center; display:flex; align-items:center; gap:20px; height:64px; padding-left:32px; border-left:1px solid var(--border); white-space:nowrap;}
+  .map-center .t{font-family:'Space Grotesk'; font-weight:700; font-size:36px; line-height:1; font-variant-numeric:tabular-nums;}
+  .map-sub{display:flex; flex-direction:column; gap:4px; font-family:'Inter'; font-weight:500; font-size:16px; color:var(--text);}
+  .map-sub .sun .lbl{font-size:12px; color:var(--dim); margin-right:5px;}
+  .map-sub .sun:empty{display:none;}
+  .map-right{justify-self:end; align-self:start; margin-top:24px; display:flex; flex-direction:column; align-items:flex-end; gap:6px;}
   .map-right .u{font-size:12px; color:var(--dim);}
   .map-credit{display:flex; align-items:center; gap:7px; font-size:12px; color:var(--dim); white-space:nowrap;}
   .map-credit i{width:8px; height:8px; border-radius:50%; background:#e74c3c; animation:pulse 2s infinite;}
@@ -101,6 +100,10 @@
     .hours{flex:0 0 auto; flex-direction:row; flex-wrap:wrap;}
     .hour{flex:1 1 90px; padding:8px 12px; max-height:none;}
     .map-col{height:62vh; min-height:400px;}
+    .map-mask{height:auto; min-height:var(--map-bar-h); grid-template-columns:1fr; gap:8px; padding:12px 16px;}
+    .map-title,.map-center,.map-right{justify-self:start;}
+    .map-center{height:auto; padding-left:0; border-left:none;}
+    .map-right{margin-top:0; align-items:flex-start; flex-direction:row; gap:12px;}
   }
 </style>
 </head>
@@ -121,10 +124,10 @@
     <div class="map-col">
       <iframe id="map" allowfullscreen referrerpolicy="no-referrer-when-downgrade" title="Live traffic around BillionToOne offices"></iframe>
       <div class="map-mask">
-        <div class="map-info">
-          <div class="map-title"><span class="live"></span><span id="locName"></span></div>
-          <div class="map-time"><span class="t" id="clock">--:--</span></div>
-          <div class="sun" id="sunset"></div>
+        <div class="map-title"><span class="live"></span><span id="locName"></span></div>
+        <div class="map-center">
+          <span class="t" id="clock">--:--</span>
+          <div class="map-sub"><div id="date"></div><div class="sun" id="sunset"></div></div>
         </div>
         <div class="map-right">
           <div class="map-credit"><i></i> Live traffic · via Waze</div>
@@ -245,7 +248,7 @@
       });
   }
   function refreshMap(){ document.getElementById("map").src=wazeSrc(); }
-  function tickClock(){ document.getElementById("clock").textContent=hhmm(new Date()); }
+  function tickClock(){ var n=new Date(); document.getElementById("clock").textContent=hhmm(n); document.getElementById("date").textContent=n.toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"}); }
 
 
   document.getElementById("locName").textContent = LOCATION.name + " – Live Traffic View";
