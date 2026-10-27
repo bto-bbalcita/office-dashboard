@@ -210,7 +210,7 @@
     return best===null?fallback:best;
   }
 
-  function render(data){
+  function render(data, ts){
     var c=data.current, d=data.daily, h=data.hourly, cw=wx(c.weather_code);
     var pp0=(d.precipitation_probability_max[0]!=null?d.precipitation_probability_max[0]:0);
 
@@ -258,19 +258,41 @@
     var si=(d.sunset.length>1 && Date.now()>new Date(d.sunset[0]).getTime())?1:0;
     document.getElementById("sunset").innerHTML='<span class="lbl">🌇 Sunset</span>'+hhmm(new Date(d.sunset[si]));
 
-    document.getElementById("updated").textContent="updated "+hhmm(new Date());
+    document.getElementById("updated").textContent="updated "+hhmm(new Date(ts||Date.now()));
     loaded=true;
   }
 
+  // --- weather loading: one retry timer with backoff, plus a short-lived cache so a reload still shows data
+  var CACHE_KEY = "bto-dashboard-wx-" + LOCATION.lat + "," + LOCATION.lon;
+  var retryTimer = null, failCount = 0;
+
+  function scheduleRetry(){
+    if(retryTimer) return;
+    var wait = Math.min(15*60*1000, 60*1000*Math.pow(2, failCount));   // 1, 2, 4, 8, 15 min
+    failCount++;
+    retryTimer = setTimeout(function(){ retryTimer=null; fetchWeather(); }, wait);
+  }
+  function loadCache(){
+    try{
+      var c = JSON.parse(localStorage.getItem(CACHE_KEY) || "null");
+      if(c && Date.now()-c.t < 2*60*60*1000) render(c.data, c.t);   // use cached data up to 2 hours old
+    }catch(e){}
+  }
   function fetchWeather(){
+    if(retryTimer) return;   // a retry is already queued
     fetch(API).then(function(res){ if(!res.ok) throw new Error(res.status); return res.json(); })
-      .then(render)
+      .then(function(data){
+        failCount=0;
+        try{ localStorage.setItem(CACHE_KEY, JSON.stringify({t:Date.now(), data:data})); }catch(e){}
+        render(data);
+      })
       .catch(function(e){
-        // keep showing the last good data if we have it; only show an error on first load
+        // keep showing the last good data if we have it; only show an error if there is nothing to show
         if(!loaded){
-          document.getElementById("currentWx").innerHTML='<div class="err">Could not load weather ('+e.message+'). Retrying…</div>';
+          var msg = (String(e.message)==="429") ? "Weather service is busy (429)" : "Could not load weather ("+e.message+")";
+          document.getElementById("currentWx").innerHTML='<div class="err">'+msg+'. Retrying…</div>';
         }
-        setTimeout(fetchWeather, 30*1000);
+        scheduleRetry();
       });
   }
   function renderMemo(){
@@ -288,9 +310,10 @@
   document.title = LOCATION.name + " Office Dashboard · BillionToOne";
   renderMemo(); setInterval(renderMemo,60*1000);
   refreshMap();
+  loadCache();
   fetchWeather();
   tickClock(); setInterval(tickClock,1000);
-  setInterval(fetchWeather, 10*60*1000);   // weather every 10 min
+  setInterval(fetchWeather, 15*60*1000);   // weather every 15 min
   setInterval(refreshMap, 5*60*1000);      // traffic every 5 min
 </script>
 </body>
