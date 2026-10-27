@@ -184,7 +184,8 @@
       56:["🌧️","Freezing drizzle"],57:["🌧️","Freezing drizzle"],61:["🌧️","Light rain"],63:["🌧️","Rain"],65:["🌧️","Heavy rain"],
       66:["🌧️","Freezing rain"],67:["🌧️","Freezing rain"],71:["🌨️","Light snow"],73:["🌨️","Snow"],75:["🌨️","Heavy snow"],
       77:["🌨️","Snow grains"],80:["🌦️","Rain showers"],81:["🌦️","Rain showers"],82:["⛈️","Heavy showers"],
-      85:["🌨️","Snow showers"],86:["🌨️","Snow showers"],95:["⛈️","Thunderstorm"],96:["⛈️","Thunderstorm, hail"],99:["⛈️","Thunderstorm, hail"]};
+      85:["🌨️","Snow showers"],86:["🌨️","Snow showers"],95:["⛈️","Thunderstorm"],96:["⛈️","Thunderstorm, hail"],99:["⛈️","Thunderstorm, hail"],
+      1001:["🌫️","Haze"],1003:["☁️","Mostly cloudy"]};
     return m[code]||["🌡️","—"];
   }
   function r(n){ return Math.round(n); }
@@ -262,8 +263,120 @@
     loaded=true;
   }
 
+  // ---------- National Weather Service (primary source: free, no key). Open-Meteo is the backup. ----------
+  // Everything below converts NWS data into the same shape Open-Meteo returns, so render() works with either.
+  var NWS_BASE = "https://api.weather.gov";
+  var PTS_KEY = "bto-nws-points-" + LOCATION.lat + "," + LOCATION.lon;
+
+  function nwsGet(url){
+    return fetch(url).then(function(res){ if(!res.ok) throw new Error("NWS "+res.status); return res.json(); });
+  }
+  function nwsPoints(){
+    try{
+      var c = JSON.parse(localStorage.getItem(PTS_KEY) || "null");
+      if(c && c.hourly && c.daily) return Promise.resolve(c);
+    }catch(e){}
+    return nwsGet(NWS_BASE+"/points/"+LOCATION.lat.toFixed(4)+","+LOCATION.lon.toFixed(4)).then(function(j){
+      var o = { hourly:j.properties.forecastHourly, daily:j.properties.forecast };
+      try{ localStorage.setItem(PTS_KEY, JSON.stringify(o)); }catch(e){}
+      return o;
+    });
+  }
+
+  function textToCode(t){
+    t=(t||"").toLowerCase();
+    if(/thunder/.test(t)) return 95;
+    if(/snow|flurr|sleet|blizzard|wintry/.test(t)) return 73;
+    if(/freezing/.test(t)) return 66;
+    if(/shower/.test(t)) return 80;
+    if(/drizzle/.test(t)) return 53;
+    if(/rain/.test(t)) return /light/.test(t)?61:(/heavy/.test(t)?65:63);
+    if(/fog/.test(t)) return 45;
+    if(/haze|smoke|dust/.test(t)) return 1001;
+    if(/mostly cloudy/.test(t)) return 1003;
+    if(/partly (cloudy|sunny)/.test(t)) return 2;
+    if(/cloudy|overcast/.test(t)) return 3;
+    if(/mostly (sunny|clear)/.test(t)) return 1;
+    return 0;
+  }
+  function parseWind(s){ var m=String(s||"").match(/\d+/g); return m ? Math.max.apply(null, m.map(Number)) : 0; }
+  function feelsLike(t,w,rh){
+    if(t<=50 && w>3){ var v=Math.pow(w,0.16); return 35.74+0.6215*t-35.75*v+0.4275*t*v; }                       // wind chill
+    if(t>=80 && rh!=null){                                                                                       // heat index
+      return -42.379+2.04901523*t+10.14333127*rh-0.22475541*t*rh-0.00683783*t*t-0.05481717*rh*rh+0.00122874*t*t*rh+0.00085282*t*rh*rh-0.00000199*t*t*rh*rh;
+    }
+    return t;
+  }
+  // Sunset time (epoch ms) for a calendar date and location, using the standard NOAA/Almanac algorithm.
+  function sunsetEpoch(y,m,d,lat,lon){
+    var rad=Math.PI/180;
+    var N1=Math.floor(275*m/9), N2=Math.floor((m+9)/12), N3=1+Math.floor((y-4*Math.floor(y/4)+2)/3);
+    var N=N1-N2*N3+d-30, lngHour=lon/15, t=N+(18-lngHour)/24;
+    var M=0.9856*t-3.289;
+    var L=M+1.916*Math.sin(M*rad)+0.020*Math.sin(2*M*rad)+282.634; L=((L%360)+360)%360;
+    var RA=Math.atan(0.91764*Math.tan(L*rad))/rad; RA=((RA%360)+360)%360;
+    RA=(RA+(Math.floor(L/90)*90-Math.floor(RA/90)*90))/15;
+    var sinDec=0.39782*Math.sin(L*rad), cosDec=Math.cos(Math.asin(sinDec));
+    var cosH=(Math.cos(90.833*rad)-sinDec*Math.sin(lat*rad))/(cosDec*Math.cos(lat*rad));
+    if(cosH>1||cosH<-1) return null;
+    var H=(Math.acos(cosH)/rad)/15;
+    var UT=(((H+RA-0.06571*t-6.622-lngHour)%24)+24)%24;
+    var base=Date.UTC(y,m-1,d), expected=(18-lngHour);                 // about 6 PM local solar time, in UTC hours
+    return base+(UT+24*Math.round((expected-UT)/24))*3600000;
+  }
+
+  function adaptNWS(hp, dp){
+    var h={time:[],temperature_2m:[],precipitation_probability:[],weather_code:[]};
+    hp.forEach(function(p){
+      h.time.push(p.startTime);
+      h.temperature_2m.push(p.temperature);
+      h.precipitation_probability.push((p.probabilityOfPrecipitation && p.probabilityOfPrecipitation.value) || 0);
+      h.weather_code.push(textToCode(p.shortForecast));
+    });
+    var p0=hp[0], t0=p0.temperature, w0=parseWind(p0.windSpeed), rh=(p0.relativeHumidity ? p0.relativeHumidity.value : null);
+    var cur={ temperature_2m:t0, relative_humidity_2m:(rh==null?0:Math.round(rh)), apparent_temperature:feelsLike(t0,w0,rh),
+              weather_code:textToCode(p0.shortForecast), wind_speed_10m:w0 };
+
+    var order=[], by={};
+    dp.forEach(function(p){
+      var k=p.startTime.slice(0,10);
+      if(!by[k]){ by[k]={temps:[],pp:[],code:null,codeAny:null}; order.push(k); }
+      var o=by[k], c=textToCode(p.shortForecast);
+      o.temps.push(p.temperature);
+      o.pp.push((p.probabilityOfPrecipitation && p.probabilityOfPrecipitation.value) || 0);
+      if(p.isDaytime && o.code===null) o.code=c;
+      if(o.codeAny===null) o.codeAny=c;
+    });
+    hp.forEach(function(p,i){            // fold in the hourly values for the same dates
+      var o=by[p.startTime.slice(0,10)];
+      if(o){ o.temps.push(p.temperature); o.pp.push(h.precipitation_probability[i]); }
+    });
+    var d={time:[],weather_code:[],temperature_2m_max:[],temperature_2m_min:[],precipitation_probability_max:[],sunset:[]};
+    order.slice(0,7).forEach(function(k){
+      var o=by[k], ymd=k.split("-").map(Number);
+      d.time.push(k);
+      d.weather_code.push(o.code!==null?o.code:o.codeAny);
+      d.temperature_2m_max.push(Math.max.apply(null,o.temps));
+      d.temperature_2m_min.push(Math.min.apply(null,o.temps));
+      d.precipitation_probability_max.push(Math.max.apply(null,o.pp));
+      d.sunset.push(sunsetEpoch(ymd[0],ymd[1],ymd[2],LOCATION.lat,LOCATION.lon));
+    });
+    return { current:cur, hourly:h, daily:d };
+  }
+
+  function fetchData(){
+    return nwsPoints().then(function(pt){
+      return Promise.all([nwsGet(pt.hourly), nwsGet(pt.daily)]);
+    }).then(function(r){
+      return adaptNWS(r[0].properties.periods, r[1].properties.periods);
+    }).catch(function(){
+      try{ localStorage.removeItem(PTS_KEY); }catch(e){}     // forget cached grid links in case they went stale
+      return fetch(API).then(function(res){ if(!res.ok) throw new Error(res.status); return res.json(); });   // backup: Open-Meteo
+    });
+  }
+
   // --- weather loading: one retry timer with backoff, plus a short-lived cache so a reload still shows data
-  var CACHE_KEY = "bto-dashboard-wx-" + LOCATION.lat + "," + LOCATION.lon;
+  var CACHE_KEY = "bto-dashboard-wx2-" + LOCATION.lat + "," + LOCATION.lon;
   var retryTimer = null, failCount = 0;
 
   function scheduleRetry(){
@@ -280,7 +393,7 @@
   }
   function fetchWeather(){
     if(retryTimer) return;   // a retry is already queued
-    fetch(API).then(function(res){ if(!res.ok) throw new Error(res.status); return res.json(); })
+    fetchData()
       .then(function(data){
         failCount=0;
         try{ localStorage.setItem(CACHE_KEY, JSON.stringify({t:Date.now(), data:data})); }catch(e){}
