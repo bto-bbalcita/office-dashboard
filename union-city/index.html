@@ -302,7 +302,23 @@
     el.innerHTML='<span class="mi">'+(MEMO.icon||"")+'</span><div><div class="mt">'+MEMO.title+'</div>'+(MEMO.text?'<div class="ms">'+MEMO.text+'</div>':'')+'</div>';
     el.hidden=false;
   }
-  function refreshMap(){ document.getElementById("map").src=wazeSrc(); }
+  // Reload the traffic map by building a brand-new frame (with a unique URL so nothing is reused from cache),
+  // then swapping it in once it has loaded. The old map stays visible until the new one is ready.
+  function refreshMap(){
+    var old=document.getElementById("map"), f=document.createElement("iframe");
+    f.setAttribute("allowfullscreen","");
+    f.referrerPolicy="no-referrer-when-downgrade";
+    f.title=old.title;
+    f.style.visibility="hidden";
+    f.onload=function(){
+      f.onload=null;
+      if(old.parentNode) old.parentNode.removeChild(old);
+      f.id="map"; f.style.visibility="";
+    };
+    old.parentNode.insertBefore(f, old.nextSibling);
+    f.src=wazeSrc()+"&t="+Date.now();
+    setTimeout(function(){ if(f.id!=="map" && f.parentNode) f.parentNode.removeChild(f); }, 60*1000);   // give up on a frame that never loads
+  }
   function tickClock(){ var n=new Date(); document.getElementById("clock").textContent=hhmm(n); document.getElementById("date").textContent=n.toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"}); }
 
 
