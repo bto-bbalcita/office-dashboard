@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<!-- MENLO PARK dashboard. Paste this whole file into menlo-park/index.html -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Office Dashboard · BillionToOne</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --card:#ffffff; --soft:#eef4fb; --border:#dce6f1;
+    --text:#273445; --dim:#6a7789; --accent:#1cace9;
+    --shadow:0 10px 30px rgba(39,52,69,.08); --bar-h:76px; --zoom-safe:40px; --map-bar-h:104px; --foot-h:154px; --bar-font:clamp(24px,1.875vw,36px);
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%; margin:0; overflow:hidden;}
+  body{
+    font-family:'Inter',system-ui,sans-serif; color:var(--text); -webkit-font-smoothing:antialiased;
+    height:100vh; display:flex; flex-direction:column;
+    background:radial-gradient(1200px 500px at 70% -10%, #d7f0fb, transparent 60%), linear-gradient(180deg,#eef5fb,#e6eef7);
+  }
+
+  /* top bar */
+  .bar{height:calc(var(--bar-h) + var(--zoom-safe)); flex:0 0 auto; display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:24px; padding:var(--zoom-safe) 26px 0;
+    background:var(--card); border-top:4px solid var(--accent); border-bottom:1px solid var(--border); box-shadow:0 6px 24px rgba(39,52,69,.12); z-index:6;}
+  .bar-left{grid-column:1; justify-self:start; display:flex; align-items:center; gap:20px;}
+  .bto-logo{height:44px; width:auto; display:block;}
+  .live{width:9px; height:9px; border-radius:50%; background:#2ecc71; animation:pulse 2.4s infinite; flex:0 0 auto;}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(46,204,113,.5)}70%{box-shadow:0 0 0 8px rgba(46,204,113,0)}100%{box-shadow:0 0 0 0 rgba(46,204,113,0)}}
+
+  /* split layout: separate floating panels */
+  .layout{flex:1 1 auto; min-height:0; display:flex; padding:14px; gap:14px;}
+
+  .hours-col{flex:0 0 296px; background:var(--card); border:1px solid var(--border); border-radius:18px; box-shadow:var(--shadow); display:flex; flex-direction:column; overflow:hidden; padding:14px;}
+  .rail-title.first{margin:2px 0 10px 2px;}
+  .rail-title{font-family:'Space Grotesk'; font-weight:600; font-size:12px; letter-spacing:.09em; text-transform:uppercase; color:var(--dim); margin:16px 0 10px 2px; flex:0 0 auto;}
+
+  .map-col{flex:1; position:relative; min-width:0; border:1px solid var(--border); border-radius:18px; overflow:hidden; box-shadow:var(--shadow);}
+
+  /* Google map. It stops just above the 7-day bar so Google's logo and attribution stay visible
+     (Google's policies do not allow covering them). */
+  #map{position:absolute; left:0; right:0; top:0; bottom:var(--foot-h); background:var(--soft);}
+  .map-msg{position:absolute; inset:0; display:grid; place-items:center; padding:var(--map-bar-h) 24px 0; text-align:center; color:var(--dim); font-size:16px;}
+
+  /* info bar over the top of the map */
+  .map-mask{position:absolute; top:0; left:0; right:0; height:var(--map-bar-h); background:var(--card); border-bottom:1px solid var(--border); box-shadow:0 4px 16px rgba(39,52,69,.08); z-index:2;
+    display:flex; align-items:center; justify-content:space-between; gap:24px; padding:0 24px;}
+  .map-title{justify-self:start; display:flex; align-items:center; gap:10px; font-family:'Space Grotesk'; font-weight:600; font-size:var(--bar-font); line-height:1.1; white-space:nowrap;}
+  .map-title #locName{font-family:'Inter'; font-weight:500; font-size:16px; line-height:1.2; margin-top:4px;}
+  .bar-clock{grid-column:3; justify-self:end; display:flex; align-items:center; gap:20px; white-space:nowrap;}
+  .bar-clock .t{font-family:'Space Grotesk'; font-weight:700; font-size:var(--bar-font); line-height:1; font-variant-numeric:tabular-nums;}
+  .map-sub{display:flex; flex-direction:column; gap:4px; font-family:'Inter'; font-weight:500; font-size:16px; color:var(--text);}
+  .map-sub .sun .lbl{font-size:12px; color:var(--dim); margin-right:5px;}
+  .map-sub .sun:empty{display:none;}
+
+  /* memo in the middle of the top bar */
+  .bar-memo{grid-column:2; justify-self:center; display:flex; align-items:center; gap:14px; max-width:100%; padding:9px 20px; background:linear-gradient(180deg,#f6fbff,#eaf3fb); border:1px solid var(--border); border-radius:14px;}
+  .bar-memo[hidden]{display:none;}
+  .bar-memo .mi{font-size:30px; line-height:1;}
+  .bar-memo .mt{font-family:'Space Grotesk'; font-weight:600; font-size:20px; line-height:1.15;}
+  .bar-memo .ms{font-size:14px; color:var(--dim); margin-top:2px;}
+  .map-right{justify-self:end; align-self:start; margin-top:24px; display:flex; flex-direction:column; align-items:flex-end; gap:6px;}
+  .map-right .u{font-size:12px; color:var(--dim);}
+  .map-credit{display:flex; align-items:center; gap:7px; font-size:12px; color:var(--dim); white-space:nowrap;}
+  .map-credit i{width:8px; height:8px; border-radius:50%; background:#e74c3c; animation:pulse 2s infinite;}
+
+  /* 7-day bar under the map */
+  .map-foot{position:absolute; left:0; right:0; bottom:0; height:var(--foot-h); background:var(--card); border-top:1px solid var(--border); box-shadow:0 -4px 16px rgba(39,52,69,.08); z-index:2; display:flex; flex-direction:column; gap:8px; padding:10px 14px 12px;}
+  .map-foot .rail-title{margin:0 0 0 2px;}
+  .days{flex:1 1 0; min-height:0; display:flex; gap:10px;}
+  .day{flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; background:var(--soft); border:1px solid var(--border); border-radius:12px; padding:8px 4px;}
+  .day .d{font-family:'Space Grotesk'; font-weight:600; font-size:15px;}
+  .day .i{font-size:34px; line-height:1;}
+  .day .pp{font-size:12px; color:var(--accent); font-weight:600; min-height:15px;}
+  .day .hl{font-family:'Space Grotesk'; font-weight:600; font-size:17px;}
+  .day .hl .lo{color:var(--dim);}
+
+  /* hourly list */
+  .hours{display:flex; flex-direction:column; gap:6px; flex:1 1 0; min-height:0;}
+  .hour{display:flex; align-items:center; gap:10px; background:var(--soft); border:1px solid var(--border); border-radius:11px; padding:0 12px; flex:1 1 0; min-height:0; max-height:56px;}
+  .hour .h{font-size:13px; color:var(--dim); font-weight:600; width:42px;}
+  .hour .i{font-size:22px; width:28px; text-align:center;}
+  .hour .tp{font-family:'Space Grotesk'; font-weight:700; font-size:18px; margin-left:auto;}
+  .hour .pp{font-size:12px; color:var(--accent); font-weight:600; width:48px; text-align:right;}
+
+  /* current conditions card */
+  .cur{flex:0 0 auto; border:1px solid var(--border); border-radius:14px; padding:14px; background:linear-gradient(180deg,#f6fbff,#eaf3fb);}
+  .cur-top{display:flex; align-items:center; gap:12px;}
+  .cur-icon{font-size:50px; line-height:1;}
+  .cur-temp{font-family:'Space Grotesk'; font-weight:700; font-size:46px; line-height:1;}
+  .cur-temp sup{font-size:18px; vertical-align:top; color:var(--dim);}
+  .cur-cond{font-family:'Space Grotesk'; font-weight:600; font-size:16px; margin-top:4px;}
+  .cur-stats{display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-top:12px;}
+  .stat{background:var(--card); border:1px solid var(--border); border-radius:10px; padding:7px 6px; text-align:center;}
+  .stat .lbl{font-size:9.5px; color:var(--dim); text-transform:uppercase; letter-spacing:.04em;}
+  .stat .val{font-family:'Space Grotesk'; font-weight:600; font-size:15px; margin-top:2px; white-space:nowrap;}
+
+  .loading,.err{padding:26px; text-align:center; color:var(--dim); font-size:14px;}
+  .err{color:#c0392b;}
+
+  @media (max-height:860px){
+    .cur{padding:10px;}
+    .cur-icon{font-size:40px;}
+    .cur-temp{font-size:38px;}
+    .cur-stats{margin-top:8px;}
+    .rail-title{margin:10px 0 8px 2px;}
+    .hours{gap:4px;}
+  }
+
+  @media (max-width:900px){
+    html,body{overflow:auto;}
+    .layout{flex-direction:column;}
+    .hours-col{flex:0 0 auto; overflow:visible;}
+    .hours{flex:0 0 auto; flex-direction:row; flex-wrap:wrap;}
+    .hour{flex:1 1 90px; padding:8px 12px; max-height:none;}
+    .map-col{height:62vh; min-height:400px;}
+    .bar{height:auto; grid-template-columns:1fr; gap:10px; padding-bottom:12px;}
+    .bar-left,.bar-memo,.bar-clock{grid-column:1; justify-self:start;}
+    .map-mask{height:auto; min-height:var(--map-bar-h); flex-direction:column; align-items:flex-start; gap:8px; padding:12px 16px;}
+    .map-right{margin-top:0; align-items:flex-start; flex-direction:row; gap:12px;}
+  }
+</style>
+</head>
+<body>
+  <div class="bar">
+    <div class="bar-left">
+      <svg class="bto-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 987.5 129.17" role="img" aria-label="BillionToOne"><defs><style>.d{fill:#fff;}.e{fill:#cbced5;}.f{fill:#303b4a;}.g{fill:#1cace9;}</style></defs><g><g><g><g><g><path class="f" d="M0,17.14H29.36c15.46,0,21.84,1.28,26.94,5.25,5.53,4.25,9.08,11.91,9.08,19.71s-3.97,14.89-11.06,19c10.35,3.4,15.74,11.06,15.74,22.12,0,8.08-3.12,15.46-8.79,20.71-6.95,6.52-13.47,8.23-31.06,8.23H0V17.14ZM31.91,53.16c6.95,0,10.21-2.27,10.21-7.52,0-2.55-1.28-4.82-3.26-5.96-1.7-.99-2.84-1.13-6.95-1.13h-8.65v14.61h8.65Zm2.84,37.58c7.8,0,12.05-3.12,12.05-9.08,0-2.55-1.28-5.11-3.26-6.52-1.99-1.28-3.97-1.7-8.79-1.7h-11.49v17.3h11.49Z"/><path class="f" d="M83.95,17.14h24.25V112.15h-24.25V17.14Z"/><path class="f" d="M126.5,17.14h24.25V90.74h28.08v21.41h-52.33V17.14Z"/><path class="f" d="M188.9,17.14h24.25V90.74h28.08v21.41h-52.33V17.14Z"/><path class="f" d="M251.3,17.14h24.25V112.15h-24.25V17.14Z"/><path class="f" d="M338.94,15.15c28.22,0,50.34,21.7,50.34,49.49s-22.12,49.35-50.2,49.35-50.2-21.41-50.2-50.06,22.12-48.78,50.06-48.78Zm.57,77.43c14.32,0,25.53-12.2,25.53-27.8s-11.35-28.22-25.95-28.22-25.95,12.05-25.95,27.51c0,16.31,11.2,28.5,26.38,28.5Z"/><path class="f" d="M402.48,17.14h20.85l37.16,59.7-.99-59.7h23.26V112.15h-21.13l-36.73-57.86,.85,57.86h-23.26V17.14Z"/></g><g><path class="e" d="M519.57,38.57h-18.86V17.16h61.83v21.41h-18.72V112.17h-24.25V38.57Z"/><path class="e" d="M615.73,15.17c28.22,0,50.34,21.7,50.34,49.49s-22.12,49.35-50.2,49.35-50.2-21.41-50.2-50.06,22.12-48.78,50.06-48.78Zm.57,77.43c14.32,0,25.53-12.2,25.53-27.8s-11.35-28.22-25.95-28.22-25.95,12.05-25.95,27.51c0,16.31,11.2,28.5,26.38,28.5Z"/></g></g><rect class="g" x="689.11" y="0" width="298.39" height="129.17"/><g><path class="d" d="M754.73,20.83c24.99,0,44.58,19.21,44.58,43.82s-19.59,43.7-44.45,43.7-44.45-18.96-44.45-44.32,19.59-43.19,44.32-43.19Zm.5,68.56c12.68,0,22.6-10.8,22.6-24.61s-10.04-24.99-22.98-24.99-22.98,10.67-22.98,24.36c0,14.44,9.92,25.24,23.35,25.24Z"/><path class="d" d="M820.41,22.58h18.46l32.9,52.86-.88-52.86h20.59V106.71h-18.71l-32.52-51.23,.75,51.23h-20.59V22.58Z"/><path class="d" d="M915.21,22.58h46.84v18.96h-26.24v12.93h25.36v18.96h-25.36v14.31h26.24v18.96h-46.84V22.58Z"/></g></g></g></g></svg>
+    </div>
+    <div class="bar-memo" id="memo" hidden></div>
+    <div class="bar-clock">
+      <span class="t" id="clock">--:--</span>
+      <div class="map-sub"><div id="date"></div><div class="sun" id="sunset"></div></div>
+    </div>
+  </div>
+
+  <div class="layout">
+    <div class="hours-col">
+      <p class="rail-title first">Current Weather</p>
+      <div class="cur" id="currentWx"><div class="loading">Loading…</div></div>
+      <p class="rail-title">Next 12 hours</p>
+      <div class="hours" id="hours"><div class="loading">Loading…</div></div>
+    </div>
+
+    <div class="map-col">
+      <div id="map" role="img" aria-label="Live traffic around BillionToOne offices"></div>
+      <div class="map-mask">
+        <div class="map-title"><span class="live"></span><div class="ttl"><div>Live Traffic View</div><div id="locName"></div></div></div>
+        <div class="map-right">
+          <div class="map-credit"><i></i> Live traffic · via Google</div>
+          <div class="u" id="updated">updating…</div>
+        </div>
+      </div>
+      <div class="map-foot">
+        <p class="rail-title">Next 7 Days</p>
+        <div class="days" id="days"><div class="loading">Loading…</div></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  var MAP = { lat: 37.4530, lon: -122.1817, zoom: 12 };            // regional traffic view
+  var LOCATION = { name: "Menlo Park, CA", lat: 37.4530, lon: -122.1817 }; // weather location
+
+  // Memo shown in the middle of the top bar. Edit the text below any time.
+  // hideAfter: the memo disappears on this date (YYYY-MM-DD). Use "" to keep it showing.
+  // To remove the memo entirely, set title to "".
+  var MEMO = {
+    icon: "🕑",
+    title: "Daylight Saving Time ends Sunday, Nov 1",
+    text: "Turn clocks back 1 hour at 2:00 AM",
+    hideAfter: "2026-11-02"
+  };
+
+  // ---------- Live traffic map (Google Maps JavaScript API) ----------
+  // Paste your Google Maps API key here. In Google Cloud, restrict the key to this website.
+  var GOOGLE_KEY = "PASTE_YOUR_KEY_HERE";
+
+  function mapMessage(text){
+    var el=document.getElementById("map");
+    el.innerHTML='<div class="map-msg">'+text+'</div>';
+  }
+  window.gm_authFailure=function(){ mapMessage("Traffic map unavailable: Google rejected the API key."); };
+  window.initTrafficMap=function(){
+    google.maps.importLibrary("maps").then(function(lib){
+      var map=new lib.Map(document.getElementById("map"),{
+        center:{lat:MAP.lat,lng:MAP.lon}, zoom:MAP.zoom,
+        disableDefaultUI:true, gestureHandling:"none", keyboardShortcuts:false, clickableIcons:false
+      });
+      new lib.TrafficLayer({autoRefresh:true}).setMap(map);     // traffic colors refresh on their own
+    }).catch(function(){ mapMessage("Traffic map could not load."); });
+  };
+  function loadTrafficMap(){
+    if(!GOOGLE_KEY || GOOGLE_KEY==="PASTE_YOUR_KEY_HERE"){ mapMessage("Add the Google Maps API key to GOOGLE_KEY in this file."); return; }
+    var s=document.createElement("script");
+    s.src="https://maps.googleapis.com/maps/api/js?key="+encodeURIComponent(GOOGLE_KEY)+"&loading=async&callback=initTrafficMap";
+    s.async=true;
+    s.onerror=function(){ mapMessage("Traffic map could not load. Check the internet connection."); };
+    document.head.appendChild(s);
+  }
+
+  var API = "https://api.open-meteo.com/v1/forecast?latitude="+LOCATION.lat+"&longitude="+LOCATION.lon+
+    "&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,weather_code,wind_speed_10m"+
+    "&hourly=temperature_2m,precipitation_probability,weather_code"+
+    "&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunrise,sunset"+
+    "&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&timezone=auto&forecast_days=7";
+
+  var loaded = false;
+
+  function wx(code){
+    var m={0:["☀️","Clear sky"],1:["🌤️","Mainly clear"],2:["⛅","Partly cloudy"],3:["☁️","Overcast"],
+      45:["🌫️","Fog"],48:["🌫️","Rime fog"],51:["🌦️","Light drizzle"],53:["🌦️","Drizzle"],55:["🌦️","Heavy drizzle"],
+      56:["🌧️","Freezing drizzle"],57:["🌧️","Freezing drizzle"],61:["🌧️","Light rain"],63:["🌧️","Rain"],65:["🌧️","Heavy rain"],
+      66:["🌧️","Freezing rain"],67:["🌧️","Freezing rain"],71:["🌨️","Light snow"],73:["🌨️","Snow"],75:["🌨️","Heavy snow"],
+      77:["🌨️","Snow grains"],80:["🌦️","Rain showers"],81:["🌦️","Rain showers"],82:["⛈️","Heavy showers"],
+      85:["🌨️","Snow showers"],86:["🌨️","Snow showers"],95:["⛈️","Thunderstorm"],96:["⛈️","Thunderstorm, hail"],99:["⛈️","Thunderstorm, hail"],
+      1001:["🌫️","Haze"],1003:["☁️","Mostly cloudy"]};
+    return m[code]||["🌡️","—"];
+  }
+  function r(n){ return Math.round(n); }
+  function two(n){ return (n<10?"0":"")+n; }
+  function hhmm(d){ var h=d.getHours(),m=d.getMinutes(),ap=h>=12?"PM":"AM"; h=h%12; if(h===0)h=12; return h+":"+two(m)+" "+ap; }
+  function hourLabel(d,i){ if(i===0) return "Now"; var h=d.getHours(),ap=h>=12?"P":"A"; h=h%12; if(h===0)h=12; return h+ap; }
+  function dayLabel(d,i){ if(i===0) return "Today"; return ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][d.getDay()]; }
+
+  function stat(lbl,val){ return '<div class="stat"><div class="lbl">'+lbl+'</div><div class="val">'+val+'</div></div>'; }
+
+  // Most common hourly weather code during daytime (7am-7pm) for a given date string (YYYY-MM-DD).
+  // Falls back to the API's daily code if no hourly data is found.
+  function dayCode(h, dateStr, fallback){
+    var counts={}, best=null, bestN=0;
+    for(var i=0;i<h.time.length;i++){
+      if(h.time[i].slice(0,10)!==dateStr) continue;
+      var hr=parseInt(h.time[i].slice(11,13),10);
+      if(hr<7||hr>19) continue;
+      var c=h.weather_code[i];
+      counts[c]=(counts[c]||0)+1;
+      if(counts[c]>bestN){ bestN=counts[c]; best=c; }
+    }
+    return best===null?fallback:best;
+  }
+
+  function render(data, ts){
+    var c=data.current, d=data.daily, h=data.hourly, cw=wx(c.weather_code);
+    var pp0=(d.precipitation_probability_max[0]!=null?d.precipitation_probability_max[0]:0);
+
+    // current conditions card (left column)
+    document.getElementById("currentWx").innerHTML=
+      '<div class="cur-top"><span class="cur-icon">'+cw[0]+'</span>'+
+        '<div><div class="cur-temp">'+r(c.temperature_2m)+'<sup>°F</sup></div><div class="cur-cond">'+cw[1]+'</div></div></div>'+
+      '<div class="cur-stats">'+
+        stat('Feels like', r(c.apparent_temperature)+'°')+
+        stat('Humidity', c.relative_humidity_2m+'%')+
+        stat('Wind', r(c.wind_speed_10m)+' mph')+
+        stat('Rain', pp0+'%')+
+        stat('High', r(d.temperature_2m_max[0])+'°')+
+        stat('Low', r(d.temperature_2m_min[0])+'°')+
+      '</div>';
+
+    // next 12 hours (first row uses live "current" data so it matches the header)
+    var now=Date.now(), start=0;
+    for(var i=0;i<h.time.length;i++){ if(new Date(h.time[i]).getTime() >= now-3600000){ start=i; break; } }
+    var html="";
+    for(var j=start;j<start+12 && j<h.time.length;j++){
+      var isNow=(j===start);
+      var dt=new Date(h.time[j]);
+      var w=isNow?cw:wx(h.weather_code[j]);
+      var temp=isNow?c.temperature_2m:h.temperature_2m[j];
+      var pp=h.precipitation_probability[j];
+      html+='<div class="hour"><div class="h">'+hourLabel(dt,j-start)+'</div><div class="i">'+w[0]+'</div>'+
+        '<div class="tp">'+r(temp)+'°</div><div class="pp">'+(pp>0?('💧'+pp+'%'):'')+'</div></div>';
+    }
+    document.getElementById("hours").innerHTML=html;
+
+    // 7-day bar
+    var dhtml="";
+    for(var k=0;k<d.time.length;k++){
+      var dd=new Date(d.time[k]+"T12:00:00");
+      var w2=wx(dayCode(h, d.time[k], d.weather_code[k]));
+      var pp2=d.precipitation_probability_max[k];
+      dhtml+='<div class="day"><div class="d">'+dayLabel(dd,k)+'</div><div class="i">'+w2[0]+'</div>'+
+        '<div class="pp">'+(pp2>0?('💧'+pp2+'%'):'')+'</div>'+
+        '<div class="hl">'+r(d.temperature_2m_max[k])+'° <span class="lo">'+r(d.temperature_2m_min[k])+'°</span></div></div>';
+    }
+    document.getElementById("days").innerHTML=dhtml;
+
+    // sunset: today's if still ahead, otherwise tomorrow's
+    var si=(d.sunset.length>1 && Date.now()>new Date(d.sunset[0]).getTime())?1:0;
+    document.getElementById("sunset").innerHTML='<span class="lbl">🌇 Sunset</span>'+hhmm(new Date(d.sunset[si]));
+
+    document.getElementById("updated").textContent="updated "+hhmm(new Date(ts||Date.now()));
+    loaded=true;
+  }
+
+  // ---------- National Weather Service (primary source: free, no key). Open-Meteo is the backup. ----------
+  // Everything below converts NWS data into the same shape Open-Meteo returns, so render() works with either.
+  var NWS_BASE = "https://api.weather.gov";
+  var PTS_KEY = "bto-nws-points-" + LOCATION.lat + "," + LOCATION.lon;
+
+  function nwsGet(url){
+    return fetch(url).then(function(res){ if(!res.ok) throw new Error("NWS "+res.status); return res.json(); });
+  }
+  function nwsPoints(){
+    try{
+      var c = JSON.parse(localStorage.getItem(PTS_KEY) || "null");
+      if(c && c.hourly && c.daily) return Promise.resolve(c);
+    }catch(e){}
+    return nwsGet(NWS_BASE+"/points/"+LOCATION.lat.toFixed(4)+","+LOCATION.lon.toFixed(4)).then(function(j){
+      var o = { hourly:j.properties.forecastHourly, daily:j.properties.forecast };
+      try{ localStorage.setItem(PTS_KEY, JSON.stringify(o)); }catch(e){}
+      return o;
+    });
+  }
+
+  function textToCode(t){
+    t=(t||"").toLowerCase();
+    if(/thunder/.test(t)) return 95;
+    if(/snow|flurr|sleet|blizzard|wintry/.test(t)) return 73;
+    if(/freezing/.test(t)) return 66;
+    if(/shower/.test(t)) return 80;
+    if(/drizzle/.test(t)) return 53;
+    if(/rain/.test(t)) return /light/.test(t)?61:(/heavy/.test(t)?65:63);
+    if(/fog/.test(t)) return 45;
+    if(/haze|smoke|dust/.test(t)) return 1001;
+    if(/mostly cloudy/.test(t)) return 1003;
+    if(/partly (cloudy|sunny)/.test(t)) return 2;
+    if(/cloudy|overcast/.test(t)) return 3;
+    if(/mostly (sunny|clear)/.test(t)) return 1;
+    return 0;
+  }
+  function parseWind(s){ var m=String(s||"").match(/\d+/g); return m ? Math.max.apply(null, m.map(Number)) : 0; }
+  function feelsLike(t,w,rh){
+    if(t<=50 && w>3){ var v=Math.pow(w,0.16); return 35.74+0.6215*t-35.75*v+0.4275*t*v; }                       // wind chill
+    if(t>=80 && rh!=null){                                                                                       // heat index
+      return -42.379+2.04901523*t+10.14333127*rh-0.22475541*t*rh-0.00683783*t*t-0.05481717*rh*rh+0.00122874*t*t*rh+0.00085282*t*rh*rh-0.00000199*t*t*rh*rh;
+    }
+    return t;
+  }
+  // Sunset time (epoch ms) for a calendar date and location, using the standard NOAA/Almanac algorithm.
+  function sunsetEpoch(y,m,d,lat,lon){
+    var rad=Math.PI/180;
+    var N1=Math.floor(275*m/9), N2=Math.floor((m+9)/12), N3=1+Math.floor((y-4*Math.floor(y/4)+2)/3);
+    var N=N1-N2*N3+d-30, lngHour=lon/15, t=N+(18-lngHour)/24;
+    var M=0.9856*t-3.289;
+    var L=M+1.916*Math.sin(M*rad)+0.020*Math.sin(2*M*rad)+282.634; L=((L%360)+360)%360;
+    var RA=Math.atan(0.91764*Math.tan(L*rad))/rad; RA=((RA%360)+360)%360;
+    RA=(RA+(Math.floor(L/90)*90-Math.floor(RA/90)*90))/15;
+    var sinDec=0.39782*Math.sin(L*rad), cosDec=Math.cos(Math.asin(sinDec));
+    var cosH=(Math.cos(90.833*rad)-sinDec*Math.sin(lat*rad))/(cosDec*Math.cos(lat*rad));
+    if(cosH>1||cosH<-1) return null;
+    var H=(Math.acos(cosH)/rad)/15;
+    var UT=(((H+RA-0.06571*t-6.622-lngHour)%24)+24)%24;
+    var base=Date.UTC(y,m-1,d), expected=(18-lngHour);                 // about 6 PM local solar time, in UTC hours
+    return base+(UT+24*Math.round((expected-UT)/24))*3600000;
+  }
+
+  function adaptNWS(hp, dp){
+    var h={time:[],temperature_2m:[],precipitation_probability:[],weather_code:[]};
+    hp.forEach(function(p){
+      h.time.push(p.startTime);
+      h.temperature_2m.push(p.temperature);
+      h.precipitation_probability.push((p.probabilityOfPrecipitation && p.probabilityOfPrecipitation.value) || 0);
+      h.weather_code.push(textToCode(p.shortForecast));
+    });
+    var p0=hp[0], t0=p0.temperature, w0=parseWind(p0.windSpeed), rh=(p0.relativeHumidity ? p0.relativeHumidity.value : null);
+    var cur={ temperature_2m:t0, relative_humidity_2m:(rh==null?0:Math.round(rh)), apparent_temperature:feelsLike(t0,w0,rh),
+              weather_code:textToCode(p0.shortForecast), wind_speed_10m:w0 };
+
+    var order=[], by={};
+    dp.forEach(function(p){
+      var k=p.startTime.slice(0,10);
+      if(!by[k]){ by[k]={temps:[],pp:[],code:null,codeAny:null}; order.push(k); }
+      var o=by[k], c=textToCode(p.shortForecast);
+      o.temps.push(p.temperature);
+      o.pp.push((p.probabilityOfPrecipitation && p.probabilityOfPrecipitation.value) || 0);
+      if(p.isDaytime && o.code===null) o.code=c;
+      if(o.codeAny===null) o.codeAny=c;
+    });
+    hp.forEach(function(p,i){            // fold in the hourly values for the same dates
+      var o=by[p.startTime.slice(0,10)];
+      if(o){ o.temps.push(p.temperature); o.pp.push(h.precipitation_probability[i]); }
+    });
+    var d={time:[],weather_code:[],temperature_2m_max:[],temperature_2m_min:[],precipitation_probability_max:[],sunset:[]};
+    order.slice(0,7).forEach(function(k){
+      var o=by[k], ymd=k.split("-").map(Number);
+      d.time.push(k);
+      d.weather_code.push(o.code!==null?o.code:o.codeAny);
+      d.temperature_2m_max.push(Math.max.apply(null,o.temps));
+      d.temperature_2m_min.push(Math.min.apply(null,o.temps));
+      d.precipitation_probability_max.push(Math.max.apply(null,o.pp));
+      d.sunset.push(sunsetEpoch(ymd[0],ymd[1],ymd[2],LOCATION.lat,LOCATION.lon));
+    });
+    return { current:cur, hourly:h, daily:d };
+  }
+
+  function fetchData(){
+    return nwsPoints().then(function(pt){
+      return Promise.all([nwsGet(pt.hourly), nwsGet(pt.daily)]);
+    }).then(function(r){
+      return adaptNWS(r[0].properties.periods, r[1].properties.periods);
+    }).catch(function(){
+      try{ localStorage.removeItem(PTS_KEY); }catch(e){}     // forget cached grid links in case they went stale
+      return fetch(API).then(function(res){ if(!res.ok) throw new Error(res.status); return res.json(); });   // backup: Open-Meteo
+    });
+  }
+
+  // --- weather loading: one retry timer with backoff, plus a short-lived cache so a reload still shows data
+  var CACHE_KEY = "bto-dashboard-wx2-" + LOCATION.lat + "," + LOCATION.lon;
+  var retryTimer = null, failCount = 0;
+
+  function scheduleRetry(){
+    if(retryTimer) return;
+    var wait = Math.min(15*60*1000, 60*1000*Math.pow(2, failCount));   // 1, 2, 4, 8, 15 min
+    failCount++;
+    retryTimer = setTimeout(function(){ retryTimer=null; fetchWeather(); }, wait);
+  }
+  function loadCache(){
+    try{
+      var c = JSON.parse(localStorage.getItem(CACHE_KEY) || "null");
+      if(c && Date.now()-c.t < 2*60*60*1000) render(c.data, c.t);   // use cached data up to 2 hours old
+    }catch(e){}
+  }
+  function fetchWeather(){
+    if(retryTimer) return;   // a retry is already queued
+    fetchData()
+      .then(function(data){
+        failCount=0;
+        try{ localStorage.setItem(CACHE_KEY, JSON.stringify({t:Date.now(), data:data})); }catch(e){}
+        render(data);
+      })
+      .catch(function(e){
+        // keep showing the last good data if we have it; only show an error if there is nothing to show
+        if(!loaded){
+          var msg = (String(e.message)==="429") ? "Weather service is busy (429)" : "Could not load weather ("+e.message+")";
+          document.getElementById("currentWx").innerHTML='<div class="err">'+msg+'. Retrying…</div>';
+        }
+        scheduleRetry();
+      });
+  }
+  function renderMemo(){
+    var el=document.getElementById("memo");
+    var off=!MEMO || !MEMO.title || (MEMO.hideAfter && Date.now()>=new Date(MEMO.hideAfter+"T00:00:00").getTime());
+    if(off){ el.hidden=true; return; }
+    el.innerHTML='<span class="mi">'+(MEMO.icon||"")+'</span><div><div class="mt">'+MEMO.title+'</div>'+(MEMO.text?'<div class="ms">'+MEMO.text+'</div>':'')+'</div>';
+    el.hidden=false;
+  }
+  function tickClock(){ var n=new Date(); document.getElementById("clock").textContent=hhmm(n); document.getElementById("date").textContent=n.toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"}); }
+
+
+  document.getElementById("locName").textContent = LOCATION.name;
+  document.title = LOCATION.name + " Office Dashboard · BillionToOne";
+  renderMemo(); setInterval(renderMemo,60*1000);
+  loadTrafficMap();
+  loadCache();
+  fetchWeather();
+  tickClock(); setInterval(tickClock,1000);
+  setInterval(fetchWeather, 15*60*1000);   // weather every 15 min
+</script>
+</body>
+</html>
