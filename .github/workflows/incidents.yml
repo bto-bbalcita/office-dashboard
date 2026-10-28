@@ -1,0 +1,79 @@
+# Path in your repo: .github/workflows/incidents.yml
+# Every 10 minutes: ask 511 for traffic events, keep the fields the dashboards need,
+# and publish them as incidents.json on a branch called "data".
+name: Update traffic incidents
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: incidents
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Fetch events from 511
+        env:
+          API_511_TOKEN: ${{ secrets.API_511_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -z "${API_511_TOKEN}" ]; then echo "The secret API_511_TOKEN is not set"; exit 1; fi
+          curl -sS --fail --compressed --max-time 60 \
+            "https://api.511.org/traffic/events?api_key=${API_511_TOKEN}&format=json" -o raw.json
+          sed -i '1s/^\xEF\xBB\xBF//' raw.json          # 511 can prepend an invisible marker; remove it
+          jq -e '.events | type == "array"' raw.json > /dev/null
+          echo "Events received: $(jq '.events | length' raw.json)"
+          echo "Fields on the first event: $(jq -c '(.events[0] // {}) | keys' raw.json)"
+
+      - name: Keep only what the dashboards need
+        run: |
+          set -euo pipefail
+          jq '
+            def pt:
+              (.geography // {}) as $g
+              | if $g.type == "Point" then $g.coordinates
+                elif $g.type == "LineString" then $g.coordinates[0]
+                elif $g.type == "MultiLineString" then $g.coordinates[0][0]
+                else null end;
+            {
+              fetched: (now | todate),
+              source: "511.org",
+              events: [ .events[] | (pt) as $p | {
+                id: (.id // ""),
+                status: (.status // "ACTIVE"),
+                type: (.event_type // ""),
+                subtypes: (.event_subtypes // []),
+                severity: (.severity // "UNKNOWN"),
+                headline: (.headline // ""),
+                description: ((.description // "") | .[0:300]),
+                created: (.created // null),
+                updated: (.updated // null),
+                lon: ($p[0]? // null),
+                lat: ($p[1]? // null),
+                roads: [ (.roads // [])[] | { name: (.name // ""), direction: (.direction // ""), from: (.from // ""), to: (.to // "") } ]
+              } ]
+            }' raw.json > incidents.json
+          echo "Events saved: $(jq '.events | length' incidents.json)"
+
+      - name: Publish to the data branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir publish
+          cp incidents.json publish/
+          cd publish
+          git init -q -b data
+          git config user.name "incident-bot"
+          git config user.email "incident-bot@users.noreply.github.com"
+          git add incidents.json
+          git commit -q -m "Update incidents"
+          git push -f -q "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" data
