@@ -1,5 +1,5 @@
 # Path in your repo: .github/workflows/incidents.yml
-# Every 15 minutes: ask 511 for traffic events (all pages), keep the fields the dashboards need,
+# Every 15 minutes: ask 511 for traffic events (all pages), keep only INCIDENTS and the fields the dashboards need,
 # and publish them as incidents.json on a branch called "data".
 name: Update traffic incidents
 
@@ -68,7 +68,7 @@ jobs:
             {
               fetched: (now | todate),
               source: "511.org",
-              events: [ .events[] | (pt) as $p | {
+              events: [ .events[] | select((.event_type // "") | ascii_upcase == "INCIDENT") | (pt) as $p | {
                 id: (.id // ""),
                 status: (.status // "ACTIVE"),
                 type: (.event_type // ""),
@@ -83,7 +83,7 @@ jobs:
                 roads: [ (.roads // [])[] | { name: (.name // ""), direction: (.direction // ""), from: (.from // ""), to: (.to // "") } ]
               } ]
             }' raw.json > incidents.json
-          echo "Events saved: $(jq '.events | length' incidents.json)"
+          echo "Events received: $(jq '.events | length' raw.json), incidents kept: $(jq '.events | length' incidents.json) (construction and other types are dropped)"
           echo "By type: $(jq -c '[.events[].type] | group_by(.) | map({(.[0]): length}) | add' incidents.json)"
           echo "By status: $(jq -c '[.events[].status] | group_by(.) | map({(.[0]): length}) | add' incidents.json)"
           echo "By severity: $(jq -c '[.events[].severity] | group_by(.) | map({(.[0]): length}) | add' incidents.json)"
