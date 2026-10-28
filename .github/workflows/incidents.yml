@@ -1,11 +1,11 @@
 # Path in your repo: .github/workflows/incidents.yml
-# Every 10 minutes: ask 511 for traffic events, keep the fields the dashboards need,
+# Every 15 minutes: ask 511 for traffic events (all pages), keep the fields the dashboards need,
 # and publish them as incidents.json on a branch called "data".
 name: Update traffic incidents
 
 on:
   schedule:
-    - cron: "*/10 * * * *"
+    - cron: "*/15 * * * *"
   workflow_dispatch:
 
 permissions:
@@ -20,17 +20,39 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Fetch events from 511
+      - name: Fetch events from 511 (all pages)
         env:
           API_511_TOKEN: ${{ secrets.API_511_TOKEN }}
         run: |
           set -euo pipefail
           if [ -z "${API_511_TOKEN}" ]; then echo "The secret API_511_TOKEN is not set"; exit 1; fi
-          curl -sS --fail --compressed --max-time 60 \
-            "https://api.511.org/traffic/events?api_key=${API_511_TOKEN}&format=json" -o raw.json
-          sed -i '1s/^\xEF\xBB\xBF//' raw.json          # 511 can prepend an invisible marker; remove it
-          jq -e '.events | type == "array"' raw.json > /dev/null
-          echo "Events received: $(jq '.events | length' raw.json)"
+
+          fetch_page() {
+            local url="https://api.511.org/traffic/events?api_key=${API_511_TOKEN}&format=json&offset=$1"
+            if ! curl -sS --fail --compressed --max-time 60 "${url}&limit=500" -o raw.json; then
+              echo "A page size of 500 was rejected; retrying with the default page size"
+              curl -sS --fail --compressed --max-time 60 "${url}" -o raw.json
+            fi
+            sed -i '1s/^\xEF\xBB\xBF//' raw.json          # 511 can prepend an invisible marker; remove it
+            jq -e '.events | type == "array"' raw.json > /dev/null
+          }
+
+          echo '[]' > all.json
+          offset=0
+          for page in 1 2 3 4 5 6 7 8; do
+            fetch_page "${offset}"
+            n=$(jq '.events | length' raw.json)
+            before=$(jq 'length' all.json)
+            jq -s '(.[0] + .[1].events) | unique_by(.id)' all.json raw.json > merged.json
+            mv merged.json all.json
+            after=$(jq 'length' all.json)
+            echo "Page ${page}: offset ${offset}, received ${n}, unique so far ${after}"
+            # stop when a page is empty or adds nothing new
+            if [ "${n}" -eq 0 ] || [ "${after}" -eq "${before}" ]; then break; fi
+            offset=$((offset + n))
+          done
+          jq '{events: .}' all.json > raw.json
+          echo "Total events: $(jq '.events | length' raw.json)"
           echo "Fields on the first event: $(jq -c '(.events[0] // {}) | keys' raw.json)"
 
       - name: Keep only what the dashboards need
@@ -62,6 +84,10 @@ jobs:
               } ]
             }' raw.json > incidents.json
           echo "Events saved: $(jq '.events | length' incidents.json)"
+          echo "By type: $(jq -c '[.events[].type] | group_by(.) | map({(.[0]): length}) | add' incidents.json)"
+          echo "By status: $(jq -c '[.events[].status] | group_by(.) | map({(.[0]): length}) | add' incidents.json)"
+          echo "By severity: $(jq -c '[.events[].severity] | group_by(.) | map({(.[0]): length}) | add' incidents.json)"
+          echo "Missing coordinates: $(jq '[.events[] | select(.lat == null)] | length' incidents.json)"
 
       - name: Publish to the data branch
         env:
