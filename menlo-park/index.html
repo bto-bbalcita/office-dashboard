@@ -42,6 +42,7 @@
   /* Google map. It stops just above the 7-day bar so Google's logo and attribution stay visible
      (Google's policies do not allow covering them). */
   #map{position:absolute; left:0; right:0; top:0; bottom:var(--foot-h); background:var(--soft);}
+  #waze{position:absolute; inset:0; width:100%; height:100%; border:0; display:none; background:var(--soft);}
   .map-msg{position:absolute; inset:0; display:grid; place-items:center; padding:var(--map-bar-h) 24px 0; text-align:center; color:var(--dim); font-size:16px;}
 
   /* info bar over the top of the map */
@@ -145,10 +146,11 @@
 
     <div class="map-col">
       <div id="map" role="img" aria-label="Live traffic around BillionToOne offices"></div>
+      <iframe id="waze" title="Live traffic around BillionToOne offices (Waze)" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>
       <div class="map-mask">
         <div class="map-title"><span class="live"></span><div class="ttl"><div>Live Traffic View</div><div id="locName"></div></div></div>
         <div class="map-right">
-          <div class="map-credit"><i></i> Live traffic · via Google</div>
+          <div class="map-credit"><i></i> <span id="creditTxt">Live traffic · via Google</span></div>
           <div class="u" id="updated">updating…</div>
         </div>
       </div>
@@ -160,7 +162,7 @@
   </div>
 
 <script>
-  var MAP = { lat: 37.4530, lon: -122.1817, zoom: 11 };            // regional traffic view
+  var MAP = { lat: 37.4530, lon: -122.1817, zoom: 12 };            // regional traffic view
   var LOCATION = { name: "Menlo Park, CA", lat: 37.4530, lon: -122.1817 }; // weather location
 
   // Memo shown in the middle of the top bar. Edit the text below any time.
@@ -173,31 +175,68 @@
     hideAfter: "2026-11-02"
   };
 
-  // ---------- Live traffic map (Google Maps JavaScript API) ----------
-  // Paste your Google Maps API key here. In Google Cloud, restrict the key to this website.
+  // ---------- Live traffic map ----------
+  // Google Maps JavaScript API. Paste your key here. In Google Cloud, restrict the key to this website.
   var GOOGLE_KEY = "AIzaSyAjE-EDZYR8g1vCo_ETLLjk1GQCvPNTE64";
 
-  function mapMessage(text){
-    var el=document.getElementById("map");
-    el.innerHTML='<div class="map-msg">'+text+'</div>';
+  // Automatic fallback: if the Google map fails to load or shows an error (bad key, daily limit reached,
+  // no connection to Google), this page switches itself to the free Waze live map.
+  // Add ?map=waze to the page address to preview the Waze view.
+  var fellBack = false, googleStarted = false;
+
+  function wazeSrc(){ return "https://embed.waze.com/iframe?zoom="+MAP.zoom+"&lat="+MAP.lat+"&lon="+MAP.lon+"&ct=livemap"; }
+
+  function showWaze(note){
+    if(fellBack) return;
+    fellBack = true;
+    document.getElementById("map").style.display="none";
+    var f=document.getElementById("waze");
+    f.style.display="block";
+    f.src=wazeSrc();
+    document.getElementById("creditTxt").textContent="Live traffic · via Waze"+(note?" ("+note+")":"");
   }
-  window.gm_authFailure=function(){ mapMessage("Traffic map unavailable: Google rejected the API key."); };
+
+  // Google does not always report a daily-limit or billing problem to the page, so also look for its error screens.
+  function googleLooksBroken(){
+    var m=document.getElementById("map");
+    if(!m) return true;
+    if(m.querySelector(".gm-err-container, .dismissButton")) return true;
+    var t=(m.textContent||"").toLowerCase();
+    return t.indexOf("development purposes")>-1 || t.indexOf("load google maps correctly")>-1 || t.indexOf("oops")>-1;
+  }
+
+  function watchGoogle(map){
+    var started=Date.now(), tiles=false;
+    map.addListener("tilesloaded", function(){ tiles=true; });
+    var timer=setInterval(function(){
+      if(fellBack){ clearInterval(timer); return; }
+      if(googleLooksBroken()){ clearInterval(timer); showWaze("Google unavailable"); return; }
+      if(!tiles && Date.now()-started>12000){ clearInterval(timer); showWaze("Google did not load"); return; }
+      if(tiles && Date.now()-started>30000){ clearInterval(timer); }   // healthy for 30 seconds: stop checking
+    }, 1500);
+  }
+
+  window.gm_authFailure=function(){ showWaze("Google key problem"); };
   window.initTrafficMap=function(){
+    googleStarted=true;
     google.maps.importLibrary("maps").then(function(lib){
       var map=new lib.Map(document.getElementById("map"),{
         center:{lat:MAP.lat,lng:MAP.lon}, zoom:MAP.zoom,
         disableDefaultUI:true, gestureHandling:"none", keyboardShortcuts:false, clickableIcons:false
       });
       new lib.TrafficLayer({autoRefresh:true}).setMap(map);     // traffic colors refresh on their own
-    }).catch(function(){ mapMessage("Traffic map could not load."); });
+      watchGoogle(map);
+    }).catch(function(){ showWaze("Google unavailable"); });
   };
   function loadTrafficMap(){
-    if(!GOOGLE_KEY || GOOGLE_KEY==="PASTE_YOUR_KEY_HERE"){ mapMessage("Add the Google Maps API key to GOOGLE_KEY in this file."); return; }
+    if(new URLSearchParams(location.search).get("map")==="waze"){ showWaze("preview"); return; }
+    if(!GOOGLE_KEY || GOOGLE_KEY==="PASTE_YOUR_KEY_HERE"){ showWaze("no Google key"); return; }
     var s=document.createElement("script");
     s.src="https://maps.googleapis.com/maps/api/js?key="+encodeURIComponent(GOOGLE_KEY)+"&loading=async&callback=initTrafficMap";
     s.async=true;
-    s.onerror=function(){ mapMessage("Traffic map could not load. Check the internet connection."); };
+    s.onerror=function(){ showWaze("Google unavailable"); };
     document.head.appendChild(s);
+    setTimeout(function(){ if(!googleStarted) showWaze("Google did not load"); }, 12000);
   }
 
   var API = "https://api.open-meteo.com/v1/forecast?latitude="+LOCATION.lat+"&longitude="+LOCATION.lon+
