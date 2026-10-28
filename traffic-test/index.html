@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- FREMONT dashboard (test). Paste this whole file into traffic-test/index.html -->
+<!-- FREMONT dashboard (test) WITH TRAFFIC INCIDENTS SIDEBAR. Paste this whole file into traffic-test/index.html -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -42,7 +42,7 @@
   /* Google map. It stops just above the 7-day bar so Google's logo and attribution stay visible
      (Google's policies do not allow covering them). */
   #map{position:absolute; left:0; right:0; top:0; bottom:var(--foot-h); background:var(--soft);}
-  #waze{position:absolute; inset:0; width:100%; height:100%; border:0; display:none; background:var(--soft); filter:saturate(0.85) brightness(1.03);}
+  #waze{position:absolute; inset:0; width:100%; height:100%; border:0; display:none; background:var(--soft);}
   .map-msg{position:absolute; inset:0; display:grid; place-items:center; padding:var(--map-bar-h) 24px 0; text-align:center; color:var(--dim); font-size:16px;}
 
   /* info bar over the top of the map */
@@ -98,6 +98,23 @@
   .stat .lbl{font-size:9.5px; color:var(--dim); text-transform:uppercase; letter-spacing:.04em;}
   .stat .val{font-family:'Space Grotesk'; font-weight:600; font-size:15px; margin-top:2px; white-space:nowrap;}
 
+  /* traffic incidents sidebar (511.org) */
+  .inc-col{flex:0 0 320px; background:var(--card); border:1px solid var(--border); border-radius:18px; box-shadow:var(--shadow); display:flex; flex-direction:column; overflow:hidden; padding:14px;}
+  .inc-head{display:flex; align-items:baseline; justify-content:space-between; gap:8px; margin:2px 0 10px 2px; flex:0 0 auto;}
+  .inc-head .rail-title{margin:0;}
+  .inc-count{font-family:'Space Grotesk'; font-weight:700; font-size:13px; color:var(--dim);}
+  .inc-list{flex:1 1 0; min-height:0; overflow:hidden; display:flex; flex-direction:column; gap:8px;}
+  .inc{display:flex; gap:10px; background:var(--soft); border:1px solid var(--border); border-left:5px solid #9aa7b6; border-radius:11px; padding:10px 12px; flex:0 0 auto;}
+  .inc.sev-major{border-left-color:#e74c3c;}
+  .inc.sev-moderate{border-left-color:#f39c12;}
+  .inc.sev-minor{border-left-color:#f1c40f;}
+  .inc .ii{font-size:24px; line-height:1.1;}
+  .inc .it{font-family:'Space Grotesk'; font-weight:600; font-size:15px; line-height:1.2;}
+  .inc .ir{font-size:13px; color:var(--text); margin-top:3px;}
+  .inc .iw{font-size:12px; color:var(--dim); margin-top:3px;}
+  .inc-empty{padding:22px 10px; text-align:center; color:var(--dim); font-size:14px;}
+  .inc-foot{flex:0 0 auto; margin-top:10px; font-size:11px; color:var(--dim); text-align:center;}
+
   .loading,.err{padding:26px; text-align:center; color:var(--dim); font-size:14px;}
   .err{color:#c0392b;}
 
@@ -117,6 +134,7 @@
     .hours{flex:0 0 auto; flex-direction:row; flex-wrap:wrap;}
     .hour{flex:1 1 90px; padding:8px 12px; max-height:none;}
     .map-col{height:62vh; min-height:400px;}
+    .inc-col{flex:0 0 auto;}
     .bar{height:auto; grid-template-columns:1fr; gap:10px; padding-bottom:12px;}
     .bar-left,.bar-memo,.bar-clock{grid-column:1; justify-self:start;}
     .map-mask{height:auto; min-height:var(--map-bar-h); flex-direction:column; align-items:flex-start; gap:8px; padding:12px 16px;}
@@ -159,6 +177,12 @@
         <div class="days" id="days"><div class="loading">Loading…</div></div>
       </div>
     </div>
+
+    <aside class="inc-col">
+      <div class="inc-head"><p class="rail-title">Traffic incidents</p><span class="inc-count" id="incCount"></span></div>
+      <div class="inc-list" id="incList"><div class="loading">Loading…</div></div>
+      <div class="inc-foot" id="incFoot">Source: 511.org</div>
+    </aside>
   </div>
 
 <script>
@@ -237,6 +261,87 @@
     s.onerror=function(){ showWaze("Google unavailable"); };
     document.head.appendChild(s);
     setTimeout(function(){ if(!googleStarted) showWaze("Google did not load"); }, 12000);
+  }
+
+  // ---------- Traffic incidents sidebar (511 SF Bay, relayed by a GitHub Action) ----------
+  var INCIDENTS = {
+    url: "https://raw.githubusercontent.com/bto-bbalcita/office-dashboard/data/incidents.json",
+    radiusMiles: 15,      // only show incidents this close to the office
+    maxItems: 6,          // how many to list
+    refreshMinutes: 5,    // how often the page looks for new data
+    staleMinutes: 60      // if the feed is older than this, say so instead of showing old incidents
+  };
+  var INC_CACHE = "bto-incidents-v1";
+
+  function milesBetween(lat1,lon1,lat2,lon2){
+    var R=3958.8, rad=Math.PI/180, dLat=(lat2-lat1)*rad, dLon=(lon2-lon1)*rad;
+    var a=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(lat1*rad)*Math.cos(lat2*rad)*Math.sin(dLon/2)*Math.sin(dLon/2);
+    return 2*R*Math.asin(Math.sqrt(a));
+  }
+  function esc(t){ return String(t==null?"":t).replace(/[&<>"]/g,function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+  function ago(ts){
+    var ms=Date.now()-new Date(ts).getTime(); if(isNaN(ms)) return "";
+    var m=Math.max(0,Math.round(ms/60000)); if(m<1) return "just now"; if(m<60) return m+" min ago";
+    var h=Math.floor(m/60); return h+" hr ago";
+  }
+  function sevRank(s){ s=String(s||"").toUpperCase(); return s==="MAJOR"?3:(s==="MODERATE"?2:(s==="MINOR"?1:0)); }
+  function incIcon(e){
+    var t=((e.headline||"")+" "+((e.subtypes||[]).join(" "))).toLowerCase();
+    if(/fire/.test(t)) return "🔥";
+    if(/collision|crash|accident/.test(t)) return "🚨";
+    if(/clos/.test(t)) return "⛔";
+    return "⚠️";
+  }
+  function incRoad(e){
+    var r=(e.roads&&e.roads[0])||null; if(!r||!r.name) return "";
+    var d=String(r.direction||"").toLowerCase(); return r.name+(d?(" · "+d):"");
+  }
+  function incMessage(text){
+    document.getElementById("incList").innerHTML='<div class="inc-empty">'+text+'</div>';
+    document.getElementById("incCount").textContent="";
+  }
+
+  function renderIncidents(data){
+    var fetched=data && data.fetched ? new Date(data.fetched).getTime() : NaN;
+    if(isNaN(fetched) || Date.now()-fetched > INCIDENTS.staleMinutes*60000){ incMessage("Incident feed is not updating right now."); return; }
+    var ev=(data.events||[]).filter(function(e){
+      if(String(e.type||"").toUpperCase()!=="INCIDENT") return false;
+      if(String(e.status||"ACTIVE").toUpperCase()!=="ACTIVE") return false;
+      if(e.lat==null || e.lon==null) return false;
+      e._mi=milesBetween(LOCATION.lat,LOCATION.lon,e.lat,e.lon);
+      return e._mi<=INCIDENTS.radiusMiles;
+    });
+    ev.sort(function(a,b){
+      return (sevRank(b.severity)-sevRank(a.severity)) || (new Date(b.updated||b.created||0)-new Date(a.updated||a.created||0));
+    });
+    document.getElementById("incCount").textContent=ev.length?(ev.length+" within "+INCIDENTS.radiusMiles+" mi"):"";
+    if(!ev.length){ incMessage("No active incidents within "+INCIDENTS.radiusMiles+" miles. ✅"); return; }
+    var html="";
+    ev.slice(0,INCIDENTS.maxItems).forEach(function(e){
+      var sev=String(e.severity||"").toLowerCase();
+      html+='<div class="inc sev-'+esc(sev)+'"><div class="ii">'+incIcon(e)+'</div><div>'+
+        '<div class="it">'+esc(e.headline||"Traffic incident")+'</div>'+
+        (incRoad(e)?'<div class="ir">'+esc(incRoad(e))+'</div>':'')+
+        '<div class="iw">'+Math.round(e._mi)+' mi away'+(ago(e.updated||e.created)?(' · '+esc(ago(e.updated||e.created))):'')+'</div></div></div>';
+    });
+    document.getElementById("incList").innerHTML=html;
+  }
+
+  function fetchIncidents(){
+    try{
+      var c=JSON.parse(localStorage.getItem(INC_CACHE)||"null");
+      if(c && Date.now()-c.t < (INCIDENTS.refreshMinutes-1)*60000){ renderIncidents(c.data); return; }
+    }catch(e){}
+    fetch(INCIDENTS.url+"?t="+Math.floor(Date.now()/60000))
+      .then(function(res){ if(!res.ok) throw new Error(res.status); return res.json(); })
+      .then(function(data){
+        try{ localStorage.setItem(INC_CACHE, JSON.stringify({t:Date.now(), data:data})); }catch(e){}
+        renderIncidents(data);
+      })
+      .catch(function(){
+        try{ var c=JSON.parse(localStorage.getItem(INC_CACHE)||"null"); if(c){ renderIncidents(c.data); return; } }catch(e){}
+        incMessage("Incident feed unavailable.");
+      });
   }
 
   var API = "https://api.open-meteo.com/v1/forecast?latitude="+LOCATION.lat+"&longitude="+LOCATION.lon+
@@ -495,6 +600,8 @@
   fetchWeather();
   tickClock(); setInterval(tickClock,1000);
   setInterval(fetchWeather, 15*60*1000);   // weather every 15 min
+  fetchIncidents();
+  setInterval(fetchIncidents, INCIDENTS.refreshMinutes*60*1000);   // incidents every few minutes
 </script>
 </body>
 </html>
