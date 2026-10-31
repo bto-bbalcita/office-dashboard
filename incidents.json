@@ -1,0 +1,190 @@
+{
+  "fetched": "2026-10-31T13:54:31Z",
+  "source": "511.org",
+  "events": [
+    {
+      "id": "511.org/1571142",
+      "status": "ACTIVE",
+      "type": "INCIDENT",
+      "subtypes": [
+        "Residual delays"
+      ],
+      "severity": "Unknown",
+      "headline": "CHP : Residual delays on I-80 Eastbound west of Lagoon Valley Rd (Vacaville). Lanes open. Expect delays.",
+      "description": "",
+      "created": "2026-10-31T09:37Z",
+      "updated": "2026-10-31T13:32Z",
+      "lon": -122.025712,
+      "lat": 38.322403,
+      "roads": [
+        {
+          "name": "I-80 E",
+          "direction": "Eastbound",
+          "from": "Lagoon Valley Rd",
+          "to": ""
+        }
+      ]
+    },
+    {
+      "id": "511.org/1571150",
+      "status": "ACTIVE",
+      "type": "INCIDENT",
+      "subtypes": [
+        "Residual delays"
+      ],
+      "severity": "Moderate",
+      "headline": "CHP : Residual delays on I-580 Westbound east of Paloverde Rd (Castro Valley). Right shoulder blocked. Expect delays.",
+      "description": "",
+      "created": "2026-10-31T11:27Z",
+      "updated": "2026-10-31T13:45Z",
+      "lon": -122.021132,
+      "lat": 37.701477,
+      "roads": [
+        {
+          "name": "I-580 W",
+          "direction": "Westbound",
+          "from": "Paloverde Rd",
+          "to": ""
+        }
+      ]
+    },
+    {
+      "id": "511.org/1571157",
+      "status": "ACTIVE",
+      "type": "INCIDENT",
+      "subtypes": [
+        "Traffic Collision"
+      ],
+      "severity": "Moderate",
+      "headline": "CHP : Traffic Collision on I-880 Southbound north of Union St (Oakland). Lane blocked. Expect delays.",
+      "description": "",
+      "created": "2026-10-31T12:14Z",
+      "updated": "2026-10-31T13:52Z",
+      "lon": -122.298758,
+      "lat": 37.802104,
+      "roads": [
+        {
+          "name": "I-880 S",
+          "direction": "Southbound",
+          "from": "Union St",
+          "to": ""
+        }
+      ]
+    },
+    {
+      "id": "511.org/1571160",
+      "status": "ACTIVE",
+      "type": "INCIDENT",
+      "subtypes": [
+        "Traffic Collision"
+      ],
+      "severity": "Moderate",
+      "headline": "CHP : Traffic Collision on I-80 Westbound east of Browns Valley Pky (Vacaville). Lanes affected. Expect delays.",
+      "description": "",
+      "created": "2026-10-31T12:52Z",
+      "updated": "2026-10-31T13:25Z",
+      "lon": -121.968671,
+      "lat": 38.362051,
+      "roads": [
+        {
+          "name": "I-80 W",
+          "direction": "Westbound",
+          "from": "Browns Valley Pky",
+          "to": ""
+        }
+      ]
+    },
+    {
+      "id": "511.org/1571161",
+      "status": "ACTIVE",
+      "type": "INCIDENT",
+      "subtypes": [
+        "Traffic Collision"
+      ],
+      "severity": "Minor",
+      "headline": "CHP : Traffic Collision on I-80 Eastbound west of N Texas St (Fairfield). Center Divider affected. Expect delays.",
+      "description": "",
+      "created": "2026-10-31T13:08Z",
+      "updated": "2026-10-31T13:32Z",
+      "lon": -122.034745,
+      "lat": 38.290935,
+      "roads": [
+        {
+          "name": "I-80 E",
+          "direction": "Eastbound",
+          "from": "N Texas St",
+          "to": ""
+        }
+      ]
+    },
+    {
+      "id": "511.org/1571163",
+      "status": "ACTIVE",
+      "type": "INCIDENT",
+      "subtypes": [
+        "Traffic Hazard"
+      ],
+      "severity": "Moderate",
+      "headline": "CHP : Traffic Hazard on US-101 Southbound south of Sister Cities Blvd (South San Francisco). Right lane blocked. Expect delays.",
+      "description": "",
+      "created": "2026-10-31T13:34Z",
+      "updated": "2026-10-31T13:34Z",
+      "lon": -122.395134,
+      "lat": 37.667417,
+      "roads": [
+        {
+          "name": "US-101 S",
+          "direction": "Southbound",
+          "from": "Sister Cities Blvd",
+          "to": ""
+        }
+      ]
+    },
+    {
+      "id": "511.org/1571164",
+      "status": "ACTIVE",
+      "type": "INCIDENT",
+      "subtypes": [
+        "Traffic Collision"
+      ],
+      "severity": "Moderate",
+      "headline": "CHP : Traffic Collision on I-580 Eastbound west of N Flynn Rd (Livermore). Right shoulder affected. Expect delays.",
+      "description": "",
+      "created": "2026-10-31T13:49Z",
+      "updated": "2026-10-31T13:54Z",
+      "lon": -121.662296,
+      "lat": 37.71868,
+      "roads": [
+        {
+          "name": "I-580 E",
+          "direction": "Eastbound",
+          "from": "N Flynn Rd",
+          "to": ""
+        }
+      ]
+    },
+    {
+      "id": "511.org/1571165",
+      "status": "ACTIVE",
+      "type": "INCIDENT",
+      "subtypes": [
+        "Traffic Hazard"
+      ],
+      "severity": "Moderate",
+      "headline": "CHP : Traffic Hazard on I-880 Southbound at Marina Blvd (San Leandro). Lane affected. Expect delays.",
+      "description": "",
+      "created": "2026-10-31T13:54Z",
+      "updated": "2026-10-31T13:54Z",
+      "lon": -122.167977,
+      "lat": 37.711316,
+      "roads": [
+        {
+          "name": "I-880 S",
+          "direction": "Southbound",
+          "from": "Marina Blvd",
+          "to": ""
+        }
+      ]
+    }
+  ]
+}
