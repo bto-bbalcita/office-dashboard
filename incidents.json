@@ -1,0 +1,144 @@
+{
+  "fetched": "2026-11-07T13:25:05Z",
+  "source": "511.org",
+  "events": [
+    {
+      "id": "511.org/1574311",
+      "status": "ACTIVE",
+      "type": "INCIDENT",
+      "subtypes": [
+        "Traffic Collision"
+      ],
+      "severity": "Moderate",
+      "headline": "CHP : Traffic Collision on I-80 Eastbound at Macdonald Ave (Richmond). Right shoulder affected. Expect delays.",
+      "description": "",
+      "created": "2026-11-07T09:03Z",
+      "updated": "2026-11-07T12:01Z",
+      "lon": -122.324016,
+      "lat": 37.930097,
+      "roads": [
+        {
+          "name": "I-80 E",
+          "direction": "Eastbound",
+          "from": "Macdonald Ave",
+          "to": ""
+        }
+      ]
+    },
+    {
+      "id": "511.org/1574326",
+      "status": "ACTIVE",
+      "type": "INCIDENT",
+      "subtypes": [
+        "Traffic Collision"
+      ],
+      "severity": "Major",
+      "headline": "CHP : Traffic Collision on I-280 Southbound south of Lawrence Expy (San Jose). Off Ramp affected. Expect delays.",
+      "description": "",
+      "created": "2026-11-07T10:32Z",
+      "updated": "2026-11-07T11:37Z",
+      "lon": -121.992177,
+      "lat": 37.318938,
+      "roads": [
+        {
+          "name": "I-280 S",
+          "direction": "Southbound",
+          "from": "Lawrence Expy",
+          "to": ""
+        }
+      ]
+    },
+    {
+      "id": "511.org/1574329",
+      "status": "ACTIVE",
+      "type": "INCIDENT",
+      "subtypes": [
+        "Traffic Collision with Injuries"
+      ],
+      "severity": "Unknown",
+      "headline": "CHP : Traffic Collision with Injuries on I-880 Northbound north of W A St (Hayward). Lanes open. Expect delays.",
+      "description": "",
+      "created": "2026-11-07T10:49Z",
+      "updated": "2026-11-07T13:16Z",
+      "lon": -122.109205,
+      "lat": 37.669121,
+      "roads": [
+        {
+          "name": "I-880 N",
+          "direction": "Northbound",
+          "from": "W A St",
+          "to": ""
+        }
+      ]
+    },
+    {
+      "id": "511.org/1574332",
+      "status": "ACTIVE",
+      "type": "INCIDENT",
+      "subtypes": [
+        "Traffic Collision"
+      ],
+      "severity": "Moderate",
+      "headline": "CHP : Traffic Collision on CA-85 Southbound at Almaden Expy (San Jose). Lane affected. Expect delays.",
+      "description": "",
+      "created": "2026-11-07T11:19Z",
+      "updated": "2026-11-07T13:03Z",
+      "lon": -121.880718,
+      "lat": 37.25388,
+      "roads": [
+        {
+          "name": "CA-85 S",
+          "direction": "Southbound",
+          "from": "Almaden Expy",
+          "to": ""
+        }
+      ]
+    },
+    {
+      "id": "511.org/1574350",
+      "status": "ACTIVE",
+      "type": "INCIDENT",
+      "subtypes": [
+        "Traffic Collision"
+      ],
+      "severity": "Moderate",
+      "headline": "CHP : Traffic Collision on I-880 Northbound south of Hesperian Blvd (San Lorenzo). Right shoulder affected. Expect delays.",
+      "description": "",
+      "created": "2026-11-07T12:28Z",
+      "updated": "2026-11-07T13:11Z",
+      "lon": -122.127095,
+      "lat": 37.683304,
+      "roads": [
+        {
+          "name": "I-880 N",
+          "direction": "Northbound",
+          "from": "Hesperian Blvd",
+          "to": ""
+        }
+      ]
+    },
+    {
+      "id": "511.org/1574355",
+      "status": "ACTIVE",
+      "type": "INCIDENT",
+      "subtypes": [
+        "Disabled vehicle"
+      ],
+      "severity": "Moderate",
+      "headline": "CHP : Disabled vehicle on CA-4 Eastbound west of Somersville Rd (Antioch). Lane affected. Expect delays.",
+      "description": "",
+      "created": "2026-11-07T13:21Z",
+      "updated": "2026-11-07T13:21Z",
+      "lon": -121.841338,
+      "lat": 38.004791,
+      "roads": [
+        {
+          "name": "CA-4 E",
+          "direction": "Eastbound",
+          "from": "Somersville Rd",
+          "to": ""
+        }
+      ]
+    }
+  ]
+}
