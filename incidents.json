@@ -1,0 +1,190 @@
+{
+  "fetched": "2026-11-21T16:09:38Z",
+  "source": "511.org",
+  "events": [
+    {
+      "id": "511.org/1580409",
+      "status": "ACTIVE",
+      "type": "INCIDENT",
+      "subtypes": [
+        "Flooding"
+      ],
+      "severity": "Major",
+      "headline": "CHP : Flooding on I-80 Eastbound at Treasure Island Rd (San Francisco). Right and left lanes affected. Traffic advisory in effect.",
+      "description": "",
+      "created": "2026-11-20T18:34Z",
+      "updated": "2026-11-21T16:00Z",
+      "lon": -122.364334,
+      "lat": 37.810654,
+      "roads": [
+        {
+          "name": "I-80 E",
+          "direction": "Eastbound",
+          "from": "Treasure Island Rd",
+          "to": ""
+        }
+      ]
+    },
+    {
+      "id": "511.org/1580410",
+      "status": "ACTIVE",
+      "type": "INCIDENT",
+      "subtypes": [
+        "Flooding"
+      ],
+      "severity": "Moderate",
+      "headline": "CHP : Flooding on US-101 Northbound south of Bay Shore Blvd (San Francisco). Left lane affected. Traffic advisory in effect.",
+      "description": "",
+      "created": "2026-11-20T18:38Z",
+      "updated": "2026-11-21T16:00Z",
+      "lon": -122.398636,
+      "lat": 37.715656,
+      "roads": [
+        {
+          "name": "US-101 N",
+          "direction": "Northbound",
+          "from": "Bay Shore Blvd",
+          "to": ""
+        }
+      ]
+    },
+    {
+      "id": "511.org/1580836",
+      "status": "ACTIVE",
+      "type": "INCIDENT",
+      "subtypes": [
+        "Fog"
+      ],
+      "severity": "Moderate",
+      "headline": "CHP : Fog on I-280 Northbound west of CA-92 E (San Mateo). Lane affected. Expect delays.",
+      "description": "",
+      "created": "2026-11-21T12:06Z",
+      "updated": "2026-11-21T16:00Z",
+      "lon": -122.33171,
+      "lat": 37.502982,
+      "roads": [
+        {
+          "name": "I-280 N",
+          "direction": "Northbound",
+          "from": "CA-92 E",
+          "to": ""
+        }
+      ]
+    },
+    {
+      "id": "511.org/1580852",
+      "status": "ACTIVE",
+      "type": "INCIDENT",
+      "subtypes": [
+        "Fire"
+      ],
+      "severity": "Moderate",
+      "headline": "CHP : Fire on I-680 Southbound south of Auto Mall Pky (Fremont). Right shoulder affected. Expect delays.",
+      "description": "",
+      "created": "2026-11-21T15:04Z",
+      "updated": "2026-11-21T15:04Z",
+      "lon": -121.938187,
+      "lat": 37.511723,
+      "roads": [
+        {
+          "name": "I-680 S",
+          "direction": "Southbound",
+          "from": "Auto Mall Pky",
+          "to": ""
+        }
+      ]
+    },
+    {
+      "id": "511.org/1580859",
+      "status": "ACTIVE",
+      "type": "INCIDENT",
+      "subtypes": [
+        "Traffic Hazard"
+      ],
+      "severity": "Moderate",
+      "headline": "CHP : Traffic Hazard on I-580 Westbound east of I-238 N (Castro Valley). Lane affected. Expect delays.",
+      "description": "",
+      "created": "2026-11-21T15:33Z",
+      "updated": "2026-11-21T15:33Z",
+      "lon": -122.092358,
+      "lat": 37.69072,
+      "roads": [
+        {
+          "name": "I-580 W",
+          "direction": "Westbound",
+          "from": "I-238 N",
+          "to": ""
+        }
+      ]
+    },
+    {
+      "id": "511.org/1580862",
+      "status": "ACTIVE",
+      "type": "INCIDENT",
+      "subtypes": [
+        "Traffic Collision with Injuries"
+      ],
+      "severity": "Major",
+      "headline": "CHP : Traffic Collision with Injuries on I-680 Southbound at Chilpancingo Pky (Pleasant Hill). Off Ramp affected. Expect delays.",
+      "description": "",
+      "created": "2026-11-21T16:04Z",
+      "updated": "2026-11-21T16:05Z",
+      "lon": -122.062065,
+      "lat": 37.97324,
+      "roads": [
+        {
+          "name": "I-680 S",
+          "direction": "Southbound",
+          "from": "Chilpancingo Pky",
+          "to": ""
+        }
+      ]
+    },
+    {
+      "id": "511.org/1580863",
+      "status": "ACTIVE",
+      "type": "INCIDENT",
+      "subtypes": [
+        "Disabled vehicle"
+      ],
+      "severity": "Moderate",
+      "headline": "CHP : Disabled vehicle on I-880 Northbound at W A St (Hayward). Lane affected. Expect delays.",
+      "description": "",
+      "created": "2026-11-21T16:05Z",
+      "updated": "2026-11-21T16:05Z",
+      "lon": -122.105623,
+      "lat": 37.663343,
+      "roads": [
+        {
+          "name": "I-880 N",
+          "direction": "Northbound",
+          "from": "W A St",
+          "to": ""
+        }
+      ]
+    },
+    {
+      "id": "511.org/1580864",
+      "status": "ACTIVE",
+      "type": "INCIDENT",
+      "subtypes": [
+        "Disabled vehicle"
+      ],
+      "severity": "Moderate",
+      "headline": "CHP : Disabled vehicle on I-280 Southbound north of Washington St (Daly City). Lane blocked. Expect delays.",
+      "description": "",
+      "created": "2026-11-21T16:08Z",
+      "updated": "2026-11-21T16:08Z",
+      "lon": -122.470568,
+      "lat": 37.690867,
+      "roads": [
+        {
+          "name": "I-280 S",
+          "direction": "Southbound",
+          "from": "Washington St",
+          "to": ""
+        }
+      ]
+    }
+  ]
+}
