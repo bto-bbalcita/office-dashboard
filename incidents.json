@@ -1,0 +1,75 @@
+{
+  "fetched": "2026-11-28T14:01:50Z",
+  "source": "511.org",
+  "events": [
+    {
+      "id": "511.org/1582670",
+      "status": "ACTIVE",
+      "type": "INCIDENT",
+      "subtypes": [
+        "Fog"
+      ],
+      "severity": "Major",
+      "headline": "CHP : Fog on CA-160 Northbound and Southbound between Antioch Bridge - Toll Plaza (Oakley) and Sacramento County Line (Oakley). Lanes affected. Traffic advisory in effect.",
+      "description": "",
+      "created": "2026-11-27T18:07Z",
+      "updated": "2026-11-28T04:00Z",
+      "lon": -121.751550412657,
+      "lat": 38.0259114821201,
+      "roads": [
+        {
+          "name": "CA-160 N",
+          "direction": "Northbound and Southbound",
+          "from": "Antioch Bridge - Toll Plaza",
+          "to": "Sacramento County Line"
+        }
+      ]
+    },
+    {
+      "id": "511.org/1582854",
+      "status": "ACTIVE",
+      "type": "INCIDENT",
+      "subtypes": [
+        "Fog"
+      ],
+      "severity": "Moderate",
+      "headline": "CHP : Fog on CA-4 Eastbound at Marsh Creek Rd (Brentwood). Lane affected. Expect delays.",
+      "description": "",
+      "created": "2026-11-28T09:45Z",
+      "updated": "2026-11-28T09:46Z",
+      "lon": -121.712619,
+      "lat": 37.895679,
+      "roads": [
+        {
+          "name": "CA-4 E",
+          "direction": "Eastbound",
+          "from": "Marsh Creek Rd",
+          "to": ""
+        }
+      ]
+    },
+    {
+      "id": "511.org/1582864",
+      "status": "ACTIVE",
+      "type": "INCIDENT",
+      "subtypes": [
+        "Traffic Collision"
+      ],
+      "severity": "Moderate",
+      "headline": "CHP : Traffic Collision on I-80 Westbound west of Kidwell Rd (Dixon). Right shoulder affected. Expect delays.",
+      "description": "",
+      "created": "2026-11-28T12:57Z",
+      "updated": "2026-11-28T13:42Z",
+      "lon": -121.78935799999999,
+      "lat": 38.502136,
+      "roads": [
+        {
+          "name": "I-80 W",
+          "direction": "Westbound",
+          "from": "Kidwell Rd",
+          "to": ""
+        }
+      ]
+    }
+  ]
+}
